@@ -615,7 +615,7 @@
             <img src="/06/SNICKERS LOGO.png" alt="Snickers Logo" class="snickers-logo">
             <img src="/06/Take a Selfie.png" alt="Take a Selfie" class="asset-image">
             <div class="camera-container">
-                <video id="video2" autoplay muted></video>
+                <video id="video2" autoplay muted style="position: absolute;right: -90%;top: -130px;"></video>
                 <canvas id="canvas2"></canvas>
                 <img src="/06/Selfie_Frame.png" alt="Selfie Frame" class="selfie-frame-overlay">
             </div>
