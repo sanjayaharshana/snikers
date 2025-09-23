@@ -533,6 +533,26 @@
             background: #FFD700;
             border-radius: 2px;
         }
+
+        .hungry-result-container {
+            width: 80%;
+            max-width: 350px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .hungry-result-image {
+            margin-bottom: 20px;
+        }
+
+        .hungry-result-image img {
+            width: 300px;
+            height: 300px;
+            border-radius: 20px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            border: 5px solid #FFD700;
+            object-fit: cover;
+        }
     </style>
 </head>
 <body>
@@ -568,7 +588,20 @@
         <div class="step step4" id="step4">
             <img src="/04/SNICKERS LOGO.png" alt="Snickers Logo" class="snickers-logo">
             <img src="/04/04_TEXT.png" alt="Hungry Text" class="asset-image">
-            <img src="/04/BT_OK.png" alt="OK" class="btn-asset" onclick="nextStep()" style="cursor: pointer;">
+            
+            <div class="hungry-result-container" id="hungryResultContainer" style="display: none;">
+                <div class="hungry-result-image">
+                    <img id="hungryResultImage" src="" alt="Hungry Detection Result" class="result-image">
+                </div>
+                <div class="hungry-text">You look hungry!</div>
+            </div>
+            
+            <div class="loading" id="hungryLoading">
+                <div class="spinner"></div>
+                Detecting hunger...
+            </div>
+            
+            <img src="/04/BT_OK.png" alt="OK" class="btn-asset" onclick="nextStep()" style="cursor: pointer; display: none;" id="hungryOkBtn">
         </div>
 
         <!-- Step 5: Video -->
@@ -652,6 +685,9 @@
                 
                 if (currentStep === 3) {
                     startCamera();
+                } else if (currentStep === 4) {
+                    // Process first selfie for hungry detection
+                    processFirstSelfieForHungryDetection();
                 } else if (currentStep === 5) {
                     playVideo();
                 } else if (currentStep === 6) {
@@ -705,6 +741,71 @@
             }
             
             nextStep();
+        }
+
+        function processFirstSelfieForHungryDetection() {
+            // Show loading
+            document.getElementById('hungryLoading').style.display = 'block';
+            document.getElementById('hungryResultContainer').style.display = 'none';
+            document.getElementById('hungryOkBtn').style.display = 'none';
+            
+            if (!firstSelfie) {
+                console.error('No first selfie data available');
+                document.getElementById('hungryLoading').style.display = 'none';
+                document.getElementById('hungryResultContainer').style.display = 'block';
+                document.getElementById('hungryOkBtn').style.display = 'block';
+                return;
+            }
+            
+            // Process the first selfie with AI for sad emotion
+            const formData = new FormData();
+            formData.append('phone_number', phoneNumber);
+            formData.append('selfie_image', firstSelfie);
+            
+            fetch('/snickers/process-first-selfie', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('hungryLoading').style.display = 'none';
+                
+                console.log('First Selfie Processing Response:', data); // Debug log
+                
+                if (data.success) {
+                    // Display the sad emotion result
+                    const hungryResultImage = document.getElementById('hungryResultImage');
+                    hungryResultImage.src = data.sad_image_url;
+                    hungryResultImage.onerror = function() {
+                        console.error('Failed to load hungry detection image:', data.sad_image_url);
+                        // Show original selfie as fallback
+                        hungryResultImage.src = firstSelfie;
+                    };
+                    
+                    document.getElementById('hungryResultContainer').style.display = 'block';
+                    document.getElementById('hungryOkBtn').style.display = 'block';
+                } else {
+                    console.error('First selfie processing failed:', data.message);
+                    // Show original selfie as fallback
+                    const hungryResultImage = document.getElementById('hungryResultImage');
+                    hungryResultImage.src = firstSelfie;
+                    document.getElementById('hungryResultContainer').style.display = 'block';
+                    document.getElementById('hungryOkBtn').style.display = 'block';
+                }
+            })
+            .catch(error => {
+                document.getElementById('hungryLoading').style.display = 'none';
+                console.error('Error processing first selfie:', error);
+                
+                // Show original selfie as fallback
+                const hungryResultImage = document.getElementById('hungryResultImage');
+                hungryResultImage.src = firstSelfie;
+                document.getElementById('hungryResultContainer').style.display = 'block';
+                document.getElementById('hungryOkBtn').style.display = 'block';
+            });
         }
 
         function captureSecondSelfie() {
