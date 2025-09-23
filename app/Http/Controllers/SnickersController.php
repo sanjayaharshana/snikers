@@ -109,7 +109,9 @@ class SnickersController extends Controller
             Storage::disk('public')->put($tempPath, $imageData);
 
             // Process with AI emotion editor for SAD emotion only
+            \Log::info('Processing first selfie for sad emotion...');
             $sadImage = $this->processWithAI($tempPath, 'sad');
+            \Log::info('Sad image processing result: ' . ($sadImage ? 'Success' : 'Failed'));
 
             if ($sadImage) {
                 // Save processed image
@@ -180,7 +182,7 @@ class SnickersController extends Controller
             $response = Http::withHeaders([
                 'X-goog-api-key' =>  env('GOOGLE_GEMINI_API_KEY'),
                 'Content-Type' => 'application/json'
-            ])->post('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent?key={'.env('GOOGLE_GEMINI_API_KEY').'}', [
+            ])->post('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent?key=' . env('GOOGLE_GEMINI_API_KEY'), [
                     'contents' => [[
                         'parts' => [
                             [ 'text' => $prompt ],
@@ -197,11 +199,20 @@ class SnickersController extends Controller
 
             if ($response->successful()) {
                 $data = $response->json();
+                
+                \Log::info('Google Gemini API Response:', $data);
 
                 // Extract the generated image
                 if (isset($data['candidates'][0]['content']['parts'][0]['inlineData']['data'])) {
                     return $data['candidates'][0]['content']['parts'][0]['inlineData']['data'];
                 }
+                
+                // Check for alternative response format
+                if (isset($data['candidates'][0]['content']['parts'][1]['inlineData']['data'])) {
+                    return $data['candidates'][0]['content']['parts'][1]['inlineData']['data'];
+                }
+            } else {
+                \Log::error('Google Gemini API Error: ' . $response->status() . ' - ' . $response->body());
             }
 
             return null;

@@ -60,31 +60,31 @@
             background-repeat: no-repeat;
         }
 
-        .step.step1 {
+        #step1 {
             background-image: url('/01/BG.jpg');
         }
 
-        .step.step2 {
+        #step2 {
             background-image: url('/02/BG.jpg');
         }
 
-        .step.step3 {
+        #step3 {
             background-image: url('/03/BG.jpg');
         }
 
-        .step.step4 {
+        #step4 {
             background-image: url('/04/BG.jpg');
         }
 
-        .step.step5 {
+        #step5 {
             background-image: url('/05/BG_FRAME.png');
         }
 
-        .step.step6 {
+        #step6 {
             background-image: url('/06/BG.jpg');
         }
 
-        .step.step7 {
+        #step7 {
             background-image: url('/07/BG.jpg');
         }
 
@@ -133,7 +133,7 @@
         }
 
         .asset-image {
-            max-width: 80%;
+            max-width: 50%;
             height: auto;
             margin: 10px 0;
         }
@@ -285,16 +285,17 @@
         }
 
         .camera-container {
-            width: 80%;
-            max-width: 350px;
-            height: 60vh;
-            max-height: 400px;
-            border: 5px solid #FFD700;
+            width: 32vh;
+            max-width: 356px;
+            height: 32.1vh;
+            max-height: 409px;
+            border: solid #df0100;
             border-radius: 20px;
             overflow: hidden;
             margin: 15px 0;
             position: relative;
             background: #000;
+            border-radius: 55px 0px 64px 0px;
         }
 
         #video {
@@ -542,12 +543,11 @@
         }
 
         .hungry-result-image {
-            margin-bottom: 20px;
         }
 
         .hungry-result-image img {
-            width: 300px;
-            height: 300px;
+            width: 250px;
+            height: 250px;
             border-radius: 20px;
             box-shadow: 0 8px 25px rgba(0,0,0,0.3);
             border: 5px solid #FFD700;
@@ -558,14 +558,14 @@
 <body>
     <div class="container">
         <!-- Step 1: Ready Screen -->
-        <div class="step step1 active" id="step1">
+        <div class="step active" id="step1">
             <img src="/01/SNICKERS LOGO.png" alt="Snickers Logo" class="snickers-logo">
             <img src="/01/Ready.png" alt="Ready" class="asset-image">
             <img src="/01/SNICKERS BAR.png" alt="Snickers Bar" class="snickers-bar-asset" onclick="nextStep()">
         </div>
 
         <!-- Step 2: Phone Number -->
-        <div class="step step2" id="step2">
+        <div class="step" id="step2">
             <img src="/02/SNICKERS LOGO.png" alt="Snickers Logo" class="snickers-logo">
             <img src="/02/Enter Number.png" alt="Enter Number" class="asset-image">
             <input type="tel" class="phone-input" id="phoneInput" placeholder="+1234567890" maxlength="20">
@@ -573,7 +573,7 @@
         </div>
 
         <!-- Step 3: First Selfie -->
-        <div class="step step3" id="step3">
+        <div class="step" id="step3">
             <img src="/03/SNICKERS LOGO.png" alt="Snickers Logo" class="snickers-logo">
             <img src="/03/Take a Selfie.png" alt="Take a Selfie" class="asset-image">
             <div class="camera-container">
@@ -585,27 +585,24 @@
         </div>
 
         <!-- Step 4: Hungry Detection -->
-        <div class="step step4" id="step4">
-            <img src="/04/SNICKERS LOGO.png" alt="Snickers Logo" class="snickers-logo">
-            <img src="/04/04_TEXT.png" alt="Hungry Text" class="asset-image">
-            
-            <div class="hungry-result-container" id="hungryResultContainer" style="display: none;">
+        <div class="step" id="step4">
+            <div class="hungry-result-container" id="hungryResultContainer" style="display: block;">
                 <div class="hungry-result-image">
                     <img id="hungryResultImage" src="" alt="Hungry Detection Result" class="result-image">
                 </div>
-                <div class="hungry-text">You look hungry!</div>
+
             </div>
-            
-            <div class="loading" id="hungryLoading">
+
+            <img src="/04/04_TEXT.png" alt="Hungry Text" class="asset-image"><img src="/04/SNICKERS LOGO.png" alt="Snickers Logo" class="snickers-logo"><div class="loading" id="hungryLoading" style="display: none;">
                 <div class="spinner"></div>
                 Detecting hunger...
             </div>
-            
-            <img src="/04/BT_OK.png" alt="OK" class="btn-asset" onclick="nextStep()" style="cursor: pointer; display: none;" id="hungryOkBtn">
+
+            <img src="/04/BT_OK.png" alt="OK" class="btn-asset" onclick="nextStep()" style="cursor: pointer; display: block;" id="hungryOkBtn">
         </div>
 
         <!-- Step 5: Video -->
-        <div class="step step5" id="step5">
+        <div class="step" id="step5">
             <div class="video-container">
                 <video id="satisfying-video" autoplay muted loop>
                     <source src="/05/SNK SATISFYING VIDEO IGS.mp4" type="video/mp4">
@@ -614,7 +611,7 @@
         </div>
 
         <!-- Step 6: Second Selfie -->
-        <div class="step step6" id="step6">
+        <div class="step" id="step6">
             <img src="/06/SNICKERS LOGO.png" alt="Snickers Logo" class="snickers-logo">
             <img src="/06/Take a Selfie.png" alt="Take a Selfie" class="asset-image">
             <div class="camera-container">
@@ -626,9 +623,9 @@
         </div>
 
         <!-- Step 7: Emotion Processing & Result -->
-        <div class="step step7" id="step7">
+        <div class="step" id="step7">
             <img src="/07/SNICKERS LOGO.png" alt="Snickers Logo" class="snickers-logo">
-            
+
             <div class="emotion-container">
                 <div class="emotion-section">
                     <div class="emotion-label">SAD</div>
@@ -646,12 +643,12 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="loading" id="loading">
                 <div class="spinner"></div>
                 Processing both emotions...
             </div>
-            
+
             <img src="/07/Frame_New.png" alt="Frame" class="asset-image">
             <img src="/07/BT_done.png" alt="Done" class="btn-asset" onclick="finishCampaign()" style="display: none; cursor: pointer;" id="doneBtn">
         </div>
@@ -666,6 +663,8 @@
         let stream2 = null;
 
         function nextStep() {
+            console.log('nextStep called, current step:', currentStep);
+
             if (currentStep === 2) {
                 phoneNumber = document.getElementById('phoneInput').value;
                 if (!phoneNumber) {
@@ -675,26 +674,37 @@
             }
 
             const currentStepEl = document.getElementById(`step${currentStep}`);
+            if (!currentStepEl) {
+                console.error('Current step element not found:', `step${currentStep}`);
+                return;
+            }
+
+            console.log('Transitioning from step', currentStep, 'to step', currentStep + 1);
             currentStepEl.classList.add('fade-out');
-            
+
             setTimeout(() => {
                 currentStepEl.classList.remove('active', 'fade-out');
                 currentStep++;
                 const nextStepEl = document.getElementById(`step${currentStep}`);
-                nextStepEl.classList.add('active', `step${currentStep}`);
-                
-                if (currentStep === 3) {
-                    startCamera();
-                } else if (currentStep === 4) {
-                    // Process first selfie for hungry detection
-                    processFirstSelfieForHungryDetection();
-                } else if (currentStep === 5) {
-                    playVideo();
-                } else if (currentStep === 6) {
-                    startSecondCamera();
-                } else if (currentStep === 7) {
-                    // Automatically process both emotions
-                    processBothEmotions();
+
+                if (nextStepEl) {
+                    nextStepEl.classList.add('active');
+
+                    if (currentStep === 3) {
+                        startCamera();
+                    } else if (currentStep === 4) {
+                        // Process first selfie for hungry detection
+                        processFirstSelfieForHungryDetection();
+                    } else if (currentStep === 5) {
+                        playVideo();
+                    } else if (currentStep === 6) {
+                        startSecondCamera();
+                    } else if (currentStep === 7) {
+                        // Automatically process both emotions
+                        processBothEmotions();
+                    }
+                } else {
+                    console.error('Next step element not found:', `step${currentStep}`);
                 }
             }, 500);
         }
@@ -729,17 +739,17 @@
             const video = document.getElementById('video');
             const canvas = document.getElementById('canvas');
             const ctx = canvas.getContext('2d');
-            
+
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
             ctx.drawImage(video, 0, 0);
-            
+
             firstSelfie = canvas.toDataURL('image/jpeg');
-            
+
             if (stream) {
                 stream.getTracks().forEach(track => track.stop());
             }
-            
+
             nextStep();
         }
 
@@ -748,7 +758,7 @@
             document.getElementById('hungryLoading').style.display = 'block';
             document.getElementById('hungryResultContainer').style.display = 'none';
             document.getElementById('hungryOkBtn').style.display = 'none';
-            
+
             if (!firstSelfie) {
                 console.error('No first selfie data available');
                 document.getElementById('hungryLoading').style.display = 'none';
@@ -756,12 +766,12 @@
                 document.getElementById('hungryOkBtn').style.display = 'block';
                 return;
             }
-            
+
             // Process the first selfie with AI for sad emotion
             const formData = new FormData();
             formData.append('phone_number', phoneNumber);
             formData.append('selfie_image', firstSelfie);
-            
+
             fetch('/snickers/process-first-selfie', {
                 method: 'POST',
                 headers: {
@@ -772,9 +782,9 @@
             .then(response => response.json())
             .then(data => {
                 document.getElementById('hungryLoading').style.display = 'none';
-                
+
                 console.log('First Selfie Processing Response:', data); // Debug log
-                
+
                 if (data.success) {
                     // Display the sad emotion result
                     const hungryResultImage = document.getElementById('hungryResultImage');
@@ -784,7 +794,7 @@
                         // Show original selfie as fallback
                         hungryResultImage.src = firstSelfie;
                     };
-                    
+
                     document.getElementById('hungryResultContainer').style.display = 'block';
                     document.getElementById('hungryOkBtn').style.display = 'block';
                 } else {
@@ -799,7 +809,7 @@
             .catch(error => {
                 document.getElementById('hungryLoading').style.display = 'none';
                 console.error('Error processing first selfie:', error);
-                
+
                 // Show original selfie as fallback
                 const hungryResultImage = document.getElementById('hungryResultImage');
                 hungryResultImage.src = firstSelfie;
@@ -812,31 +822,31 @@
             const video = document.getElementById('video2');
             const canvas = document.getElementById('canvas2');
             const ctx = canvas.getContext('2d');
-            
+
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
             ctx.drawImage(video, 0, 0);
-            
+
             secondSelfie = canvas.toDataURL('image/jpeg');
-            
+
             if (stream2) {
                 stream2.getTracks().forEach(track => track.stop());
             }
-            
+
             nextStep();
         }
 
         function playVideo() {
             const video = document.getElementById('satisfying-video');
             video.play();
-            
+
             // Auto advance after video duration
             video.addEventListener('ended', function() {
                 setTimeout(() => {
                     nextStep();
                 }, 2000);
             });
-            
+
             // Also allow clicking to advance
             video.addEventListener('click', function() {
                 nextStep();
@@ -845,12 +855,12 @@
 
         function processBothEmotions() {
             document.getElementById('loading').style.display = 'block';
-            
+
             // Check if we have a selfie to process
             if (!secondSelfie) {
                 console.error('No selfie data available');
                 document.getElementById('loading').style.display = 'none';
-                
+
                 // Show fallback with original selfie
                 const sadContainer = document.getElementById('sadContainer');
                 const happyContainer = document.getElementById('happyContainer');
@@ -859,7 +869,7 @@
                 document.getElementById('doneBtn').style.display = 'block';
                 return;
             }
-            
+
             // Process the selfie with AI for both emotions
             processSelfieWithAI(secondSelfie);
         }
@@ -868,7 +878,7 @@
             const formData = new FormData();
             formData.append('phone_number', phoneNumber);
             formData.append('selfie_image', selfieData);
-            
+
             fetch('/snickers/capture', {
                 method: 'POST',
                 headers: {
@@ -879,18 +889,18 @@
             .then(response => response.json())
             .then(data => {
                 document.getElementById('loading').style.display = 'none';
-                
+
                 console.log('AI Processing Response:', data); // Debug log
-                
+
                 if (data.success) {
                     // Display both images
                     const sadContainer = document.getElementById('sadContainer');
                     const happyContainer = document.getElementById('happyContainer');
-                    
+
                     // Clear placeholder text
                     sadContainer.innerHTML = '';
                     happyContainer.innerHTML = '';
-                    
+
                     // Add images
                     const sadImg = document.createElement('img');
                     sadImg.src = data.sad_image_url;
@@ -902,7 +912,7 @@
                         sadContainer.innerHTML = '<div class="placeholder-text">Image failed to load</div>';
                     };
                     sadContainer.appendChild(sadImg);
-                    
+
                     const happyImg = document.createElement('img');
                     happyImg.src = data.happy_image_url;
                     happyImg.style.width = '100%';
@@ -913,13 +923,13 @@
                         happyContainer.innerHTML = '<div class="placeholder-text">Image failed to load</div>';
                     };
                     happyContainer.appendChild(happyImg);
-                    
+
                     // Add Snickers overlay to happy section
                     const snickersOverlay = document.createElement('div');
                     snickersOverlay.className = 'snickers-overlay';
                     snickersOverlay.innerHTML = '<div class="mini-snickers-bar"></div>';
                     happyContainer.appendChild(snickersOverlay);
-                    
+
                     // Show done button
                     document.getElementById('doneBtn').style.display = 'block';
                 } else {
@@ -927,7 +937,7 @@
                     // Show fallback with original selfie
                     const sadContainer = document.getElementById('sadContainer');
                     const happyContainer = document.getElementById('happyContainer');
-                    
+
                     // Show original selfie in both sections as fallback
                     const fallbackImg1 = document.createElement('img');
                     fallbackImg1.src = secondSelfie;
@@ -935,31 +945,31 @@
                     fallbackImg1.style.height = '100%';
                     fallbackImg1.style.objectFit = 'cover';
                     sadContainer.appendChild(fallbackImg1);
-                    
+
                     const fallbackImg2 = document.createElement('img');
                     fallbackImg2.src = secondSelfie;
                     fallbackImg2.style.width = '100%';
                     fallbackImg2.style.height = '100%';
                     fallbackImg2.style.objectFit = 'cover';
                     happyContainer.appendChild(fallbackImg2);
-                    
+
                     // Add Snickers overlay to happy section
                     const snickersOverlay = document.createElement('div');
                     snickersOverlay.className = 'snickers-overlay';
                     snickersOverlay.innerHTML = '<div class="mini-snickers-bar"></div>';
                     happyContainer.appendChild(snickersOverlay);
-                    
+
                     document.getElementById('doneBtn').style.display = 'block';
                 }
             })
             .catch(error => {
                 document.getElementById('loading').style.display = 'none';
                 console.error('Error:', error);
-                
+
                 // Show fallback with original selfie on error
                 const sadContainer = document.getElementById('sadContainer');
                 const happyContainer = document.getElementById('happyContainer');
-                
+
                 if (secondSelfie) {
                     // Show original selfie in both sections as fallback
                     const fallbackImg1 = document.createElement('img');
@@ -968,14 +978,14 @@
                     fallbackImg1.style.height = '100%';
                     fallbackImg1.style.objectFit = 'cover';
                     sadContainer.appendChild(fallbackImg1);
-                    
+
                     const fallbackImg2 = document.createElement('img');
                     fallbackImg2.src = secondSelfie;
                     fallbackImg2.style.width = '100%';
                     fallbackImg2.style.height = '100%';
                     fallbackImg2.style.objectFit = 'cover';
                     happyContainer.appendChild(fallbackImg2);
-                    
+
                     // Add Snickers overlay to happy section
                     const snickersOverlay = document.createElement('div');
                     snickersOverlay.className = 'snickers-overlay';
@@ -985,7 +995,7 @@
                     sadContainer.innerHTML = '<div class="placeholder-text">Error occurred</div>';
                     happyContainer.innerHTML = '<div class="placeholder-text">Error occurred</div>';
                 }
-                
+
                 document.getElementById('doneBtn').style.display = 'block';
             });
         }
@@ -1005,9 +1015,8 @@
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
-            // Add step class to first step
-            document.getElementById('step1').classList.add('step1');
-            
+            console.log('Campaign initialized, starting at step 1');
+
             // Add some initial animations
             setTimeout(() => {
                 const snickersBar = document.querySelector('.snickers-bar-asset');
