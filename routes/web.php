@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SnickersController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\PreviewController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -25,3 +26,6 @@ Route::get('/admin/images/{id}/edit', [AdminController::class, 'edit'])->name('a
 Route::put('/admin/images/{id}', [AdminController::class, 'update'])->name('admin.update');
 Route::delete('/admin/images/{id}', [AdminController::class, 'destroy'])->name('admin.destroy');
 Route::get('/admin/images/{id}/download/{type}', [AdminController::class, 'download'])->name('admin.download');
+
+// Preview Routes
+Route::get('/preview', [PreviewController::class, 'index'])->name('preview.kiosk');
