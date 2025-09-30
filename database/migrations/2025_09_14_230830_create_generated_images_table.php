@@ -15,7 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('phone_number');
             $table->string('original_image');
-            $table->string('processed_image');
+            $table->string('sad_image');
+            $table->string('happy_image');
             $table->json('emotion_data')->nullable();
             $table->timestamps();
         });

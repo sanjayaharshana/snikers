@@ -9,7 +9,8 @@ class GeneratedImage extends Model
     protected $fillable = [
         'phone_number',
         'original_image',
-        'processed_image',
+        'sad_image',
+        'happy_image',
         'emotion_data',
     ];
 

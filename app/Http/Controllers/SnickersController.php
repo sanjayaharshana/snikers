@@ -94,6 +94,87 @@ class SnickersController extends Controller
             'selfie_image' => 'required|string',
         ]);
 
+        try {
+            // Decode base64 image
+            $imageData = $request->selfie_image;
+            if (strpos($imageData, 'data:image') === 0) {
+                $imageData = substr($imageData, strpos($imageData, ',') + 1);
+            }
+            $imageData = base64_decode($imageData);
+
+            // Generate unique filename for original image
+            $filename = 'original_' . time() . '_' . Str::random(10) . '.jpg';
+            $originalPath = 'generated/' . $filename;
+
+            // Save original image permanently
+            Storage::disk('public')->put($originalPath, $imageData);
+
+            // Process with AI emotion editor for SAD emotion
+            \Log::info('Processing first selfie for sad emotion...');
+            $sadImage = $this->processWithAI($originalPath, 'sad');
+            \Log::info('Sad image processing result: ' . ($sadImage ? 'Success' : 'Failed'));
+
+            // Process with AI emotion editor for HAPPY emotion
+            \Log::info('Processing first selfie for happy emotion...');
+            $happyImage = $this->processWithAI($originalPath, 'happy');
+            \Log::info('Happy image processing result: ' . ($happyImage ? 'Success' : 'Failed'));
+
+            if ($sadImage && $happyImage) {
+                // Save processed images
+                $sadFilename = 'sad_' . time() . '_' . Str::random(10) . '.jpg';
+                $happyFilename = 'happy_' . time() . '_' . Str::random(10) . '.jpg';
+                $sadPath = 'generated/' . $sadFilename;
+                $happyPath = 'generated/' . $happyFilename;
+
+                Storage::disk('public')->put($sadPath, base64_decode($sadImage));
+                Storage::disk('public')->put($happyPath, base64_decode($happyImage));
+
+                // Save to database with all three images
+                $generatedImage = GeneratedImage::create([
+                    'phone_number' => $request->phone_number,
+                    'original_image' => $originalPath,
+                    'sad_image' => $sadPath,
+                    'happy_image' => $happyPath,
+                    'emotion_data' => json_encode([
+                        'original_processed' => true,
+                        'sad_processed' => true,
+                        'happy_processed' => true,
+                        'campaign_completed' => true
+                    ]),
+                ]);
+
+                return response()->json([
+                    'success' => true,
+                    'phone_number' => $request->phone_number,
+                    'original_image_url' => Storage::url($originalPath),
+                    'sad_image_url' => Storage::url($sadPath),
+                    'happy_image_url' => Storage::url($happyPath),
+                    'generated_image_id' => $generatedImage->id,
+                    'message' => 'All emotions processed successfully! Campaign completed!'
+                ]);
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to process emotions with AI'
+            ], 500);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error processing selfie: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function processSecondSelfie(Request $request)
+    {
+        $request->validate([
+            'phone_number' => 'required|string|max:20',
+            'selfie_image' => 'required|string',
+        ]);
+
+        try {
             // Decode base64 image
             $imageData = $request->selfie_image;
             if (strpos($imageData, 'data:image') === 0) {
@@ -102,39 +183,44 @@ class SnickersController extends Controller
             $imageData = base64_decode($imageData);
 
             // Generate unique filename
-            $filename = 'first_selfie_' . time() . '_' . Str::random(10) . '.jpg';
+            $filename = 'second_selfie_' . time() . '_' . Str::random(10) . '.jpg';
             $tempPath = 'temp/' . $filename;
 
             // Save temporary image
             Storage::disk('public')->put($tempPath, $imageData);
 
-            // Process with AI emotion editor for SAD emotion only
-            \Log::info('Processing first selfie for sad emotion...');
-            $sadImage = $this->processWithAI($tempPath, 'sad');
-            \Log::info('Sad image processing result: ' . ($sadImage ? 'Success' : 'Failed'));
+            // Process with AI emotion editor for HAPPY emotion only
+            \Log::info('Processing second selfie for happy emotion...');
+            $happyImage = $this->processWithAI($tempPath, 'happy');
+            \Log::info('Happy image processing result: ' . ($happyImage ? 'Success' : 'Failed'));
 
-            if ($sadImage) {
+            if ($happyImage) {
                 // Save processed image
-                $sadFilename = 'first_sad_' . time() . '_' . Str::random(10) . '.jpg';
-                $sadPath = 'generated/' . $sadFilename;
+                $happyFilename = 'second_happy_' . time() . '_' . Str::random(10) . '.jpg';
+                $happyPath = 'generated/' . $happyFilename;
 
-                Storage::disk('public')->put($sadPath, base64_decode($sadImage));
+                Storage::disk('public')->put($happyPath, base64_decode($happyImage));
 
                 return response()->json([
                     'success' => true,
                     'phone_number' => $request->phone_number,
                     'original_image_url' => Storage::url($tempPath),
-                    'sad_image_url' => Storage::url($sadPath),
-                    'message' => 'Sad emotion processed successfully!'
+                    'happy_image_url' => Storage::url($happyPath),
+                    'message' => 'Happy emotion processed successfully!'
                 ]);
             }
 
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to process sad emotion with AI'
+                'message' => 'Failed to process happy emotion with AI'
             ], 500);
 
-
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error processing second selfie: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     private function processWithAI($imagePath, $emotion = 'happy')
