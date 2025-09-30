@@ -614,7 +614,7 @@
             </div>
 
             <div class="loading" id="hungryLoading" style="display: none;">
-                <div class="video-container" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1000; background: #000;">
+                <div class="video-container" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; background: #000; border-radius: 20px; overflow: hidden;">
                     <video id="processing-video" autoplay muted loop style="width: 100%; height: 100%; object-fit: cover;">
                         <source src="/05/SNK SATISFYING VIDEO IGS.mp4" type="video/mp4">
                     </video>
