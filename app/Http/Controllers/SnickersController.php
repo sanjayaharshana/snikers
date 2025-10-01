@@ -225,6 +225,12 @@ class SnickersController extends Controller
 
     private function processWithAI($imagePath, $emotion = 'happy')
     {
+        // Check if AI mode is disabled for testing
+        if (env('AI_MODE', true) === false) {
+            \Log::info('AI_MODE is disabled, using dummy processing for emotion: ' . $emotion);
+            return $this->processWithDummyAI($imagePath, $emotion);
+        }
+
         $fullPath = Storage::disk('public')->path($imagePath);
 
         // Option 1: Use Google Gemini Imagen API (recommended for image emotion editing)
@@ -466,6 +472,22 @@ class SnickersController extends Controller
         return base64_encode(file_get_contents($imagePath));
     }
 
+    private function processWithDummyAI($imagePath, $emotion = 'happy')
+    {
+        \Log::info('Processing with dummy AI for emotion: ' . $emotion);
+        
+        // Simulate processing delay
+        sleep(2);
+        
+        // For dummy mode, we'll return the original image as base64
+        // This allows the UI to work without making actual API calls
+        $imageData = base64_encode(file_get_contents($imagePath));
+        
+        \Log::info('Dummy AI processing completed for emotion: ' . $emotion);
+        
+        return $imageData;
+    }
+
     public function getImage($filename)
     {
         $path = 'generated/' . $filename;
@@ -473,5 +495,29 @@ class SnickersController extends Controller
             return response()->file(Storage::disk('public')->path($path));
         }
         return response()->json(['error' => 'Image not found'], 404);
+    }
+
+    public function testStep4Data()
+    {
+        // Get the most recent generated image for testing
+        $latestImage = GeneratedImage::latest()->first();
+        
+        if (!$latestImage) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No generated images found'
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'phone_number' => $latestImage->phone_number,
+            'original_image_url' => Storage::url($latestImage->original_image),
+            'sad_image_url' => Storage::url($latestImage->sad_image),
+            'happy_image_url' => Storage::url($latestImage->happy_image),
+            'generated_image_id' => $latestImage->id,
+            'emotion_data' => $latestImage->emotion_data,
+            'message' => 'Test data retrieved successfully'
+        ]);
     }
 }

@@ -15,6 +15,7 @@ Route::post('/snickers/capture', [SnickersController::class, 'capture'])->name('
 Route::post('/snickers/process-first-selfie', [SnickersController::class, 'processFirstSelfie'])->name('snickers.process-first-selfie');
 Route::post('/snickers/process-second-selfie', [SnickersController::class, 'processSecondSelfie'])->name('snickers.process-second-selfie');
 Route::get('/snickers/image/{filename}', [SnickersController::class, 'getImage'])->name('snickers.image');
+Route::get('/snickers/test-step4', [SnickersController::class, 'testStep4Data'])->name('snickers.test-step4');
 
 // Admin Routes
 Route::get('/admin/login', [AdminController::class, 'showLogin'])->name('admin.login');
