@@ -724,9 +724,9 @@
 
         <!-- Step 4: Final Results -->
         <div class="step" id="step4">
-            <img src="/04/SNICKERS LOGO.png" alt="Snickers Logo" class="snickers-logo">
 
-            <div class="emotion-container" id="finalResultsContainer" style="display: none;">
+
+            <div class="emotion-container" id="finalResultsContainer" style="display: none;width: 32vh;max-width: 356px;height: 32.1vh;max-height: 409px;border: solid #df0100;border-radius: 20px;overflow: hidden;margin: 15px 0;position: relative;background: #000;border-radius: 55px 0px 64px 0px;">
                 <div class="emotion-section single-image-section">
                     <div class="emotion-label">SAD</div>
                     <div class="emotion-image-container" id="sadContainer">
@@ -735,15 +735,18 @@
                 </div>
             </div>
 
+            <img src="/04/04_TEXT.png" alt="Snickers Logo" class="snickers-logo">
+            <img src="/04/SNICKERS BAR_1.png" alt="Snickers Logo" class="snickers-logo">
+
             <div class="loading" id="hungryLoading" style="display: none;">
                 <div class="video-container" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; background: #000; border-radius: 20px; overflow: hidden;">
                     <video id="processing-video" autoplay muted loop style="width: 100%; height: 100%; object-fit: cover;">
                         <source src="/05/SNK SATISFYING VIDEO IGS.mp4" type="video/mp4">
                     </video>
-                    <div class="video-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(0,0,0,0.3);">
-                        <div class="spinner" style="margin-bottom: 20px;"></div>
-                        <div style="color: #FFD700; font-size: 18px; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.8);">Processing your photos...</div>
-                    </div>
+{{--                    <div class="video-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(0,0,0,0.3);">--}}
+{{--                        <div class="spinner" style="margin-bottom: 20px;"></div>--}}
+{{--                        <div style="color: #FFD700; font-size: 18px; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.8);">Processing your photos...</div>--}}
+{{--                    </div>--}}
                 </div>
             </div>
 
@@ -982,7 +985,7 @@
 
         function displayFinalResults(data) {
             console.log('displayFinalResults called with data:', data);
-            
+
             const sadContainer = document.getElementById('sadContainer');
 
             console.log('Container found:', {
