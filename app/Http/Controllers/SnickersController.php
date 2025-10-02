@@ -1725,8 +1725,8 @@ class SnickersController extends Controller
             $canvasHeight = imagesy($frameImage);  // 2092px
             
             // Define image areas in the template (estimated positions)
-            $sadAreaY = 200;    // Top area for sad image
-            $happyAreaY = 980;  // Bottom area for happy image
+            $sadAreaY = 100;    // Top area for sad image (moved down a bit)
+            $happyAreaY = 1030;  // Bottom area for happy image (adjusted accordingly)
             
             // Scale images to fit template areas
             $templateImageWidth = 800;  // Approximate width for template image areas
@@ -1820,8 +1820,8 @@ class SnickersController extends Controller
             $canvasHeight = $frameTemplate->height();  // 2092px
             
             // Define image areas in the template (estimated positions)
-            $sadAreaY = 200;    // Top area for sad image
-            $happyAreaY = 980;  // Bottom area for happy image
+            $sadAreaY = 250;    // Top area for sad image (moved down a bit)
+            $happyAreaY = 1030;  // Bottom area for happy image (adjusted accordingly)
             
             // Scale images to fit template areas
             $templateImageWidth = 800;  // Approximate width for template image areas
