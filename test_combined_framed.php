@@ -19,9 +19,9 @@ try {
     // Use reflection to access private methods
     $reflection = new ReflectionClass($controller);
     
-    // Test with existing images
-    $sadImagePath = 'generated/sad_1759358646_qJffTq6Ycc.jpg';
-    $happyImagePath = 'generated/happy_1759358646_8phpFt3srB.jpg';
+    // Test with existing images (using the most recent ones)
+    $sadImagePath = 'generated/sad_1759405980_fkwmIfxup7.jpg';
+    $happyImagePath = 'generated/happy_1759405980_nKDKCNSaxG.jpg';
     
     echo "1. Testing with existing images:\n";
     echo "   Sad image: $sadImagePath\n";

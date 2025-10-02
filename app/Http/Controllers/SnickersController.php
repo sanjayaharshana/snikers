@@ -1703,21 +1703,24 @@ class SnickersController extends Controller
             $happyWidth = imagesx($happyImage);
             $happyHeight = imagesy($happyImage);
 
-            // Calculate combined canvas size (side by side with gap)
+            // Calculate combined canvas size (vertical layout with gap)
             $gap = 20;
-            $canvasWidth = $sadWidth + $happyWidth + $gap;
-            $canvasHeight = max($sadHeight, $happyHeight);
+            $canvasWidth = max($sadWidth, $happyWidth);
+            $canvasHeight = $sadHeight + $happyHeight + $gap;
 
             // Create canvas with white background
             $canvas = imagecreatetruecolor($canvasWidth, $canvasHeight);
             $white = imagecolorallocate($canvas, 255, 255, 255);
             imagefill($canvas, 0, 0, $white);
 
-            // Place sad image on the left
-            imagecopy($canvas, $sadImage, 0, 0, 0, 0, $sadWidth, $sadHeight);
+            // Center images horizontally and place vertically
+            // Place sad image on the top (centered horizontally)
+            $sadX = ($canvasWidth - $sadWidth) / 2;
+            imagecopy($canvas, $sadImage, $sadX, 0, 0, 0, $sadWidth, $sadHeight);
 
-            // Place happy image on the right
-            imagecopy($canvas, $happyImage, $sadWidth + $gap, 0, 0, 0, $happyWidth, $happyHeight);
+            // Place happy image on the bottom (centered horizontally)
+            $happyX = ($canvasWidth - $happyWidth) / 2;
+            imagecopy($canvas, $happyImage, $happyX, $sadHeight + $gap, 0, 0, $happyWidth, $happyHeight);
 
             // Load the frame image
             $framePath = public_path('05/photo_frame.png');
@@ -1813,19 +1816,22 @@ class SnickersController extends Controller
             $happyWidth = $happyImage->width();
             $happyHeight = $happyImage->height();
 
-            // Calculate combined canvas size (side by side with gap)
+            // Calculate combined canvas size (vertical layout with gap)
             $gap = 20;
-            $canvasWidth = $sadWidth + $happyWidth + $gap;
-            $canvasHeight = max($sadHeight, $happyHeight);
+            $canvasWidth = max($sadWidth, $happyWidth);
+            $canvasHeight = $sadHeight + $happyHeight + $gap;
 
             // Create canvas with white background
             $canvas = $manager->create($canvasWidth, $canvasHeight, '#ffffff');
 
-            // Place sad image on the left
-            $canvas->place($sadImage, 'top-left', 0, 0);
+            // Center images horizontally and place vertically
+            // Place sad image on the top (centered horizontally)
+            $sadX = ($canvasWidth - $sadWidth) / 2;
+            $canvas->place($sadImage, 'top-left', $sadX, 0);
 
-            // Place happy image on the right
-            $canvas->place($happyImage, 'top-left', $sadWidth + $gap, 0);
+            // Place happy image on the bottom (centered horizontally)
+            $happyX = ($canvasWidth - $happyWidth) / 2;
+            $canvas->place($happyImage, 'top-left', $happyX, $sadHeight + $gap);
 
             // Load the frame image
             $framePath = public_path('05/photo_frame.png');
