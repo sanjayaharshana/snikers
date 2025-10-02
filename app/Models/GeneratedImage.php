@@ -11,6 +11,8 @@ class GeneratedImage extends Model
         'original_image',
         'sad_image',
         'happy_image',
+        'photo_frame_path',
+        'framed_image',
         'emotion_data',
     ];
 

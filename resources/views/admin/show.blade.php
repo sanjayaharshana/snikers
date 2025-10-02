@@ -227,6 +227,17 @@
                     <a href="{{ route('admin.download', ['id' => $image->id, 'type' => 'happy']) }}" class="download-btn">Download Happy</a>
                 </div>
             </div>
+
+            @if($image->framed_image)
+            <div class="image-card">
+                <div class="image-header">Framed Combined Image</div>
+                <div class="image-content">
+                    <img src="{{ Storage::url($image->framed_image) }}" alt="Framed Combined Image">
+                    <br>
+                    <a href="{{ route('admin.download', ['id' => $image->id, 'type' => 'framed']) }}" class="download-btn">Download Framed</a>
+                </div>
+            </div>
+            @endif
         </div>
     </div>
 </body>
