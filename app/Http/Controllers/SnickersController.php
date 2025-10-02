@@ -1703,30 +1703,10 @@ class SnickersController extends Controller
             $happyWidth = imagesx($happyImage);
             $happyHeight = imagesy($happyImage);
 
-            // Calculate combined canvas size (vertical layout with gap)
-            $gap = 20;
-            $canvasWidth = max($sadWidth, $happyWidth);
-            $canvasHeight = $sadHeight + $happyHeight + $gap;
-
-            // Create canvas with white background
-            $canvas = imagecreatetruecolor($canvasWidth, $canvasHeight);
-            $white = imagecolorallocate($canvas, 255, 255, 255);
-            imagefill($canvas, 0, 0, $white);
-
-            // Center images horizontally and place vertically
-            // Place sad image on the top (centered horizontally)
-            $sadX = ($canvasWidth - $sadWidth) / 2;
-            imagecopy($canvas, $sadImage, $sadX, 0, 0, 0, $sadWidth, $sadHeight);
-
-            // Place happy image on the bottom (centered horizontally)
-            $happyX = ($canvasWidth - $happyWidth) / 2;
-            imagecopy($canvas, $happyImage, $happyX, $sadHeight + $gap, 0, 0, $happyWidth, $happyHeight);
-
-            // Load the frame image
-            $framePath = public_path('05/photo_frame.png');
+            // Load the Snickers branded frame template as base canvas
+            $framePath = public_path('sniker_frame.png');
             if (!file_exists($framePath)) {
-                \Log::error('Frame image not found at: ' . $framePath);
-                imagedestroy($canvas);
+                \Log::error('Snicker frame template not found at: ' . $framePath);
                 imagedestroy($sadImage);
                 imagedestroy($happyImage);
                 return null;
@@ -1734,37 +1714,48 @@ class SnickersController extends Controller
 
             $frameImage = imagecreatefrompng($framePath);
             if (!$frameImage) {
-                \Log::error('Failed to load frame image');
-                imagedestroy($canvas);
+                \Log::error('Failed to load Snicker frame template');
                 imagedestroy($sadImage);
                 imagedestroy($happyImage);
                 return null;
             }
 
-            $frameWidth = imagesx($frameImage);
-            $frameHeight = imagesy($frameImage);
+            // Use frame template dimensions as canvas size
+            $canvasWidth = imagesx($frameImage);   // 1184px
+            $canvasHeight = imagesy($frameImage);  // 2092px
+            
+            // Define image areas in the template (estimated positions)
+            $sadAreaY = 200;    // Top area for sad image
+            $happyAreaY = 980;  // Bottom area for happy image
+            
+            // Scale images to fit template areas
+            $templateImageWidth = 800;  // Approximate width for template image areas
+            $templateImageHeight = 600; // Approximate height for template image areas
+            
+            // Resize sad image to fit template area
+            $sadResized = imagecreatetruecolor($templateImageWidth, $templateImageHeight);
+            imagecopyresampled($sadResized, $sadImage, 0, 0, 0, 0, $templateImageWidth, $templateImageHeight, $sadWidth, $sadHeight);
+            
+            // Resize happy image to fit template area  
+            $happyResized = imagecreatetruecolor($templateImageWidth, $templateImageHeight);
+            imagecopyresampled($happyResized, $happyImage, 0, 0, 0, 0, $templateImageWidth, $templateImageHeight, $happyWidth, $happyHeight);
 
-            // Scale frame to fit the canvas
-            $frameScaleX = $canvasWidth / $frameWidth;
-            $frameScaleY = $canvasHeight / $frameHeight;
-            $frameScale = min($frameScaleX, $frameScaleY);
+            // Center images horizontally in template areas
+            $imageX = ($canvasWidth - $templateImageWidth) / 2;
 
-            $scaledFrameWidth = (int)($frameWidth * $frameScale);
-            $scaledFrameHeight = (int)($frameHeight * $frameScale);
+            // Create final canvas from Snicker frame template
+            $canvas = imagecreatetruecolor($canvasWidth, $canvasHeight);
+            imagecopy($canvas, $frameImage, 0, 0, 0, 0, $canvasWidth, $canvasHeight);
 
-            // Create scaled frame
-            $scaledFrame = imagecreatetruecolor($scaledFrameWidth, $scaledFrameHeight);
-            imagealphablending($scaledFrame, false);
-            imagesavealpha($scaledFrame, true);
-            imagecopyresampled($scaledFrame, $frameImage, 0, 0, 0, 0, $scaledFrameWidth, $scaledFrameHeight, $frameWidth, $frameHeight);
+            // Place sad image in template sad area
+            imagecopy($canvas, $sadResized, $imageX, $sadAreaY, 0, 0, $templateImageWidth, $templateImageHeight);
 
-            // Center the frame on the canvas
-            $frameX = ($canvasWidth - $scaledFrameWidth) / 2;
-            $frameY = ($canvasHeight - $scaledFrameHeight) / 2;
+            // Place happy image in template happy area
+            imagecopy($canvas, $happyResized, $imageX, $happyAreaY, 0, 0, $templateImageWidth, $templateImageHeight);
 
-            // Overlay the frame with transparency
-            imagealphablending($canvas, true);
-            imagecopy($canvas, $scaledFrame, $frameX, $frameY, 0, 0, $scaledFrameWidth, $scaledFrameHeight);
+            // Clean up temporary images
+            imagedestroy($sadResized);
+            imagedestroy($happyResized);
 
             // Generate filename and save as JPG
             $combinedFilename = 'combined_framed_' . time() . '_' . Str::random(10) . '.jpg';
@@ -1777,7 +1768,6 @@ class SnickersController extends Controller
                 imagedestroy($sadImage);
                 imagedestroy($happyImage);
                 imagedestroy($frameImage);
-                imagedestroy($scaledFrame);
 
                 \Log::info('Combined framed image saved as JPG: ' . $combinedPath);
                 return $combinedPath;
@@ -1787,7 +1777,6 @@ class SnickersController extends Controller
                 imagedestroy($sadImage);
                 imagedestroy($happyImage);
                 imagedestroy($frameImage);
-                imagedestroy($scaledFrame);
                 return null;
             }
 
@@ -1816,47 +1805,42 @@ class SnickersController extends Controller
             $happyWidth = $happyImage->width();
             $happyHeight = $happyImage->height();
 
-            // Calculate combined canvas size (vertical layout with gap)
-            $gap = 20;
-            $canvasWidth = max($sadWidth, $happyWidth);
-            $canvasHeight = $sadHeight + $happyHeight + $gap;
-
-            // Create canvas with white background
-            $canvas = $manager->create($canvasWidth, $canvasHeight, '#ffffff');
-
-            // Center images horizontally and place vertically
-            // Place sad image on the top (centered horizontally)
-            $sadX = ($canvasWidth - $sadWidth) / 2;
-            $canvas->place($sadImage, 'top-left', $sadX, 0);
-
-            // Place happy image on the bottom (centered horizontally)
-            $happyX = ($canvasWidth - $happyWidth) / 2;
-            $canvas->place($happyImage, 'top-left', $happyX, $sadHeight + $gap);
-
-            // Load the frame image
-            $framePath = public_path('05/photo_frame.png');
+            // Load the Snickers branded frame template as base canvas
+            $framePath = public_path('sniker_frame.png');
             if (!file_exists($framePath)) {
-                \Log::error('Frame image not found for Intervention Image at: ' . $framePath);
+                \Log::error('Snicker frame template not found for Intervention Image at: ' . $framePath);
                 return null;
             }
-            $frameImage = $manager->read($framePath);
+            
+            $frameTemplate = $manager->read($framePath);
+            $canvasWidth = $frameTemplate->width();   // 1184px
+            $canvasHeight = $frameTemplate->height();  // 2092px
+            
+            // Define image areas in the template (estimated positions)
+            $sadAreaY = 200;    // Top area for sad image
+            $happyAreaY = 980;  // Bottom area for happy image
+            
+            // Scale images to fit template areas
+            $templateImageWidth = 800;  // Approximate width for template image areas
+            $templateImageHeight = 600; // Approximate height for template image areas
+            
+            // Resize sad image to fit template area
+            $sadResized = $sadImage->resize($templateImageWidth, $templateImageHeight);
+            
+            // Resize happy image to fit template area
+            $happyResized = $happyImage->resize($templateImageWidth, $templateImageHeight);
 
-            $frameWidth = $frameImage->width();
-            $frameHeight = $frameImage->height();
+            // Center images horizontally in template areas
+            $imageX = ($canvasWidth - $templateImageWidth) / 2;
 
-            // Scale frame to fit the canvas
-            $frameScaleX = $canvasWidth / $frameWidth;
-            $frameScaleY = $canvasHeight / $frameHeight;
-            $frameScale = min($frameScaleX, $frameScaleY);
+            // Create final canvas using Snicker frame template
+            $canvas = $frameTemplate;
 
-            $scaledFrame = $frameImage->scale($frameScale);
+            // Place sad image in template sad area
+            $canvas->place($sadResized, 'top-left', $imageX, $sadAreaY);
 
-            // Center the frame on the canvas
-            $frameX = ($canvasWidth - $scaledFrame->width()) / 2;
-            $frameY = ($canvasHeight - $scaledFrame->height()) / 2;
-
-            // Overlay the frame
-            $canvas->place($scaledFrame, 'top-left', $frameX, $frameY);
+            // Place happy image in template happy area
+            $canvas->place($happyResized, 'top-left', $imageX, $happyAreaY);
 
             // Generate filename and save as JPG
             $combinedFilename = 'combined_framed_' . time() . '_' . Str::random(10) . '.jpg';
