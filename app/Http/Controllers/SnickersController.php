@@ -1745,13 +1745,16 @@ class SnickersController extends Controller
 
             // Create final canvas from Snicker frame template
             $canvas = imagecreatetruecolor($canvasWidth, $canvasHeight);
-            imagecopy($canvas, $frameImage, 0, 0, 0, 0, $canvasWidth, $canvasHeight);
-
-            // Place sad image in template sad area
+            
+            // Place sad image in template sad area (behind frame)
             imagecopy($canvas, $sadResized, $imageX, $sadAreaY, 0, 0, $templateImageWidth, $templateImageHeight);
 
-            // Place happy image in template happy area
+            // Place happy image in template happy area (behind frame)
             imagecopy($canvas, $happyResized, $imageX, $happyAreaY, 0, 0, $templateImageWidth, $templateImageHeight);
+
+            // Overlay Snickers frame template on top (highest z-index)
+            imagealphablending($canvas, true);
+            imagecopy($canvas, $frameImage, 0, 0, 0, 0, $canvasWidth, $canvasHeight);
 
             // Clean up temporary images
             imagedestroy($sadResized);
@@ -1833,14 +1836,17 @@ class SnickersController extends Controller
             // Center images horizontally in template areas
             $imageX = ($canvasWidth - $templateImageWidth) / 2;
 
-            // Create final canvas using Snicker frame template
-            $canvas = $frameTemplate;
+            // Create canvas and place images first (behind frame)
+            $canvas = $manager->create($canvasWidth, $canvasHeight, '#ffffff');
 
-            // Place sad image in template sad area
+            // Place sad image in template sad area (behind frame)
             $canvas->place($sadResized, 'top-left', $imageX, $sadAreaY);
 
-            // Place happy image in template happy area
+            // Place happy image in template happy area (behind frame)
             $canvas->place($happyResized, 'top-left', $imageX, $happyAreaY);
+
+            // Overlay Snickers frame template on top (highest z-index)
+            $canvas->place($frameTemplate, 'top-left', 0, 0);
 
             // Generate filename and save as JPG
             $combinedFilename = 'combined_framed_' . time() . '_' . Str::random(10) . '.jpg';
