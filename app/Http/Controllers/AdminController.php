@@ -180,6 +180,36 @@ class AdminController extends Controller
             'total_processed' => DB::table('jobs')->whereNotNull('reserved_at')->count(),
         ];
 
+        // Process jobs to handle timestamp conversion
+        $jobs->getCollection()->transform(function ($job) {
+            // Convert Unix timestamps to Carbon instances
+            if (is_numeric($job->created_at)) {
+                $job->created_at = \Carbon\Carbon::createFromTimestamp($job->created_at);
+            } else {
+                $job->created_at = \Carbon\Carbon::parse($job->created_at);
+            }
+            
+            if (is_numeric($job->available_at)) {
+                $job->available_at = \Carbon\Carbon::createFromTimestamp($job->available_at);
+            } else {
+                $job->available_at = \Carbon\Carbon::parse($job->available_at);
+            }
+            
+            return $job;
+        });
+
+        // Process failed jobs to handle timestamp conversion
+        $failedJobs->getCollection()->transform(function ($job) {
+            // Convert Unix timestamps to Carbon instances
+            if (is_numeric($job->failed_at)) {
+                $job->failed_at = \Carbon\Carbon::createFromTimestamp($job->failed_at);
+            } else {
+                $job->failed_at = \Carbon\Carbon::parse($job->failed_at);
+            }
+            
+            return $job;
+        });
+
         return view('admin.queue-jobs', compact('jobs', 'failedJobs', 'stats'));
     }
 
