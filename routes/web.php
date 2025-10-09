@@ -29,6 +29,7 @@ Route::post('/admin/queue-jobs/{id}/retry', [AdminController::class, 'retryJob']
 Route::delete('/admin/queue-jobs/{id}/delete', [AdminController::class, 'deleteJob'])->name('admin.delete-job');
 Route::post('/admin/queue-jobs/clear', [AdminController::class, 'clearQueue'])->name('admin.clear-queue');
 Route::get('/admin/images/{id}', [AdminController::class, 'show'])->name('admin.show');
+Route::get('/admin/images/{id}/framed-image', [AdminController::class, 'framedImage'])->name('admin.framedImage');
 Route::get('/admin/images/{id}/edit', [AdminController::class, 'edit'])->name('admin.edit');
 Route::put('/admin/images/{id}', [AdminController::class, 'update'])->name('admin.update');
 Route::delete('/admin/images/{id}', [AdminController::class, 'destroy'])->name('admin.destroy');

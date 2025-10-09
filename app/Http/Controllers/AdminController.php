@@ -26,7 +26,7 @@ class AdminController extends Controller
         ]);
 
         $credentials = $request->only('email', 'password');
-        
+
         // Simple admin authentication (you can enhance this later)
         if ($credentials['email'] === 'admin@snickers.com' && $credentials['password'] === 'admin123') {
             session(['admin_logged_in' => true]);
@@ -97,7 +97,7 @@ class AdminController extends Controller
         }
 
         $image = GeneratedImage::findOrFail($id);
-        
+
         // Delete files from storage
         if (Storage::disk('public')->exists($image->original_image)) {
             Storage::disk('public')->delete($image->original_image);
@@ -121,7 +121,7 @@ class AdminController extends Controller
         }
 
         $image = GeneratedImage::findOrFail($id);
-        
+
         $filePath = match($type) {
             'original' => $image->original_image,
             'sad' => $image->sad_image,
@@ -188,13 +188,13 @@ class AdminController extends Controller
             } else {
                 $job->created_at = \Carbon\Carbon::parse($job->created_at);
             }
-            
+
             if (is_numeric($job->available_at)) {
                 $job->available_at = \Carbon\Carbon::createFromTimestamp($job->available_at);
             } else {
                 $job->available_at = \Carbon\Carbon::parse($job->available_at);
             }
-            
+
             return $job;
         });
 
@@ -206,7 +206,7 @@ class AdminController extends Controller
             } else {
                 $job->failed_at = \Carbon\Carbon::parse($job->failed_at);
             }
-            
+
             return $job;
         });
 
@@ -256,5 +256,17 @@ class AdminController extends Controller
         } catch (\Exception $e) {
             return redirect()->route('admin.queue-jobs')->with('error', 'Failed to clear queue: ' . $e->getMessage());
         }
+    }
+
+
+    public function framedImage($id)
+    {
+        if (!session('admin_logged_in')) {
+            return redirect()->route('admin.login');
+        }
+
+        $image = GeneratedImage::findOrFail($id);
+
+        return view('admin.frame_generate_image', compact('image'));
     }
 }
