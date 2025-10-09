@@ -16,6 +16,8 @@ Route::post('/snickers/process-first-selfie', [SnickersController::class, 'proce
 Route::post('/snickers/process-second-selfie', [SnickersController::class, 'processSecondSelfie'])->name('snickers.process-second-selfie');
 Route::get('/snickers/image/{filename}', [SnickersController::class, 'getImage'])->name('snickers.image');
 Route::get('/snickers/test-step4', [SnickersController::class, 'testStep4Data'])->name('snickers.test-step4');
+Route::post('/snickers/check-job-status', [SnickersController::class, 'checkJobStatus'])->name('snickers.check-job-status');
+Route::get('/snickers/processing-jobs', [SnickersController::class, 'getProcessingJobs'])->name('snickers.processing-jobs');
 
 // Admin Routes
 Route::get('/admin/login', [AdminController::class, 'showLogin'])->name('admin.login');
@@ -27,6 +29,7 @@ Route::get('/admin/images/{id}/edit', [AdminController::class, 'edit'])->name('a
 Route::put('/admin/images/{id}', [AdminController::class, 'update'])->name('admin.update');
 Route::delete('/admin/images/{id}', [AdminController::class, 'destroy'])->name('admin.destroy');
 Route::get('/admin/images/{id}/download/{type}', [AdminController::class, 'download'])->name('admin.download');
+Route::post('/admin/images/{id}/generate-happy', [AdminController::class, 'generateHappy'])->name('admin.generate-happy');
 
 // Preview Routes
 Route::get('/preview', [PreviewController::class, 'index'])->name('preview.kiosk');

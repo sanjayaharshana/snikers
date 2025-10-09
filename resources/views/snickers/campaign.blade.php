@@ -760,6 +760,14 @@
                     <source src="/05/SNK SATISFYING VIDEO IGS.mp4" type="video/mp4">
                 </video>
             </div>
+            
+            <!-- Processing Status Overlay -->
+            <div id="processingStatusOverlay" style="position: absolute; top: 20px; left: 20px; right: 20px; background: rgba(0,0,0,0.7); color: #FFD700; padding: 15px; border-radius: 10px; text-align: center; font-size: 16px; font-weight: bold; z-index: 1000;">
+                <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+                    <div class="spinner" style="width: 20px; height: 20px; border-width: 2px;"></div>
+                    <span>Processing your sad emotion...</span>
+                </div>
+            </div>
         </div>
 
         <!-- Step 6: Second Selfie -->
@@ -863,7 +871,7 @@
                     if (currentStep === 3) {
                         startCamera();
                     } else if (currentStep === 4) {
-                        // Process first selfie for all emotions and complete campaign
+                        // Process first selfie for sad emotion and navigate to video
                         processFirstSelfieForHungryDetection();
                     } else if (currentStep === 6) {
                         startSecondCamera();
@@ -960,10 +968,25 @@
                 });
 
                 if (data.success) {
-                    // Display all three images
-                    displayFinalResults(data);
-                    document.getElementById('finalResultsContainer').style.display = 'block';
-                    document.getElementById('finalOkBtn').style.display = 'block';
+                    // Store the generated image ID for later use
+                    window.generatedImageId = data.generated_image_id;
+                    
+                    // Navigate to video step (step 5) immediately after job is queued
+                    setTimeout(() => {
+                        // Hide current step
+                        document.getElementById('step4').classList.add('fade-out');
+                        
+                        setTimeout(() => {
+                            document.getElementById('step4').classList.remove('active', 'fade-out');
+                            
+                            // Show video step
+                            currentStep = 5;
+                            document.getElementById('step5').classList.add('active');
+                            
+                            // Start video playback and polling
+                            playVideo();
+                        }, 500);
+                    }, 1000); // Wait 1 second to show the job queued message
                 } else {
                     console.error('First selfie processing failed:', data.message);
                     // Show original selfie as fallback in all sections
@@ -1051,8 +1074,50 @@
                 stream2.getTracks().forEach(track => track.stop());
             }
 
-            // Move to next step (emotion processing)
-            nextStep();
+            // Process second selfie with AI
+            processSecondSelfie();
+        }
+
+        function processSecondSelfie() {
+            if (!secondSelfie) {
+                console.error('No second selfie data available');
+                nextStep();
+                return;
+            }
+
+            // Process the second selfie with AI for happy emotion
+            const formData = new FormData();
+            formData.append('phone_number', phoneNumber);
+            formData.append('selfie_image', secondSelfie);
+
+            fetch('/snickers/process-second-selfie', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Second Selfie Processing Response:', data);
+
+                if (data.success) {
+                    // Store the happy image result
+                    secondSelfieHappyResult = data.happy_image_url;
+                    
+                    // Move to next step (final emotion processing)
+                    nextStep();
+                } else {
+                    console.error('Second selfie processing failed:', data.message);
+                    // Still move to next step with fallback
+                    nextStep();
+                }
+            })
+            .catch(error => {
+                console.error('Error processing second selfie:', error);
+                // Still move to next step with fallback
+                nextStep();
+            });
         }
 
 
@@ -1060,72 +1125,236 @@
             const video = document.getElementById('satisfying-video');
             video.play();
 
+            // Start polling for sad image processing status
+            startPollingForSadImage();
+
             // Auto advance after video duration
             video.addEventListener('ended', function() {
+                // Stop polling when video ends
+                stopPolling();
+                
                 setTimeout(() => {
-                    nextStep();
+                    // Navigate to step 6 (second selfie)
+                    document.getElementById('step5').classList.add('fade-out');
+                    
+                    setTimeout(() => {
+                        document.getElementById('step5').classList.remove('active', 'fade-out');
+                        
+                        currentStep = 6;
+                        document.getElementById('step6').classList.add('active');
+                        
+                        // Start second camera
+                        startSecondCamera();
+                    }, 500);
                 }, 2000);
             });
 
             // Also allow clicking to advance
             video.addEventListener('click', function() {
-                nextStep();
+                // Stop polling when user clicks
+                stopPolling();
+                
+                // Navigate to step 6 (second selfie)
+                document.getElementById('step5').classList.add('fade-out');
+                
+                setTimeout(() => {
+                    document.getElementById('step5').classList.remove('active', 'fade-out');
+                    
+                    currentStep = 6;
+                    document.getElementById('step6').classList.add('active');
+                    
+                    // Start second camera
+                    startSecondCamera();
+                }, 500);
             });
+        }
+
+        let pollingInterval = null;
+
+        function startPollingForSadImage() {
+            if (!window.generatedImageId) {
+                console.error('No generated image ID available for polling');
+                return;
+            }
+
+            console.log('Starting polling for sad image processing...');
+            
+            // Show processing status overlay
+            const overlay = document.getElementById('processingStatusOverlay');
+            if (overlay) {
+                overlay.style.display = 'block';
+            }
+            
+            pollingInterval = setInterval(() => {
+                checkSadImageStatus();
+            }, 3000); // Poll every 3 seconds
+        }
+
+        function stopPolling() {
+            if (pollingInterval) {
+                clearInterval(pollingInterval);
+                pollingInterval = null;
+                console.log('Stopped polling for sad image processing');
+                
+                // Hide processing status overlay
+                const overlay = document.getElementById('processingStatusOverlay');
+                if (overlay) {
+                    overlay.style.display = 'none';
+                }
+            }
+        }
+
+        function checkSadImageStatus() {
+            if (!window.generatedImageId) {
+                console.error('No generated image ID available');
+                return;
+            }
+
+            fetch('/snickers/check-job-status', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({
+                    generated_image_id: window.generatedImageId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Job status check response:', data);
+
+                if (data.success) {
+                    // Update status message based on job status
+                    updateProcessingStatus(data.job_status);
+                    
+                    // Check if sad image processing is completed
+                    if (data.sad_image_url && data.job_status === 'completed') {
+                        console.log('Sad image processing completed! Navigating to results...');
+                        
+                        // Stop polling
+                        stopPolling();
+                        
+                        // Store the sad image result
+                        window.sadImageResult = data.sad_image_url;
+                        
+                        // Navigate to results page (step 4) with the processed image
+                        setTimeout(() => {
+                            navigateToResultsWithSadImage(data);
+                        }, 1000);
+                    } else if (data.job_status === 'failed') {
+                        console.log('Sad image processing failed, using fallback');
+                        
+                        // Stop polling
+                        stopPolling();
+                        
+                        // Navigate to results with fallback
+                        setTimeout(() => {
+                            navigateToResultsWithFallback();
+                        }, 1000);
+                    }
+                    // If still processing (queued/processing), continue polling
+                } else {
+                    console.error('Failed to check job status:', data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error checking job status:', error);
+            });
+        }
+
+        function updateProcessingStatus(status) {
+            const overlay = document.getElementById('processingStatusOverlay');
+            if (!overlay) return;
+
+            const statusText = overlay.querySelector('span');
+            if (!statusText) return;
+
+            switch (status) {
+                case 'queued':
+                    statusText.textContent = 'Job queued, waiting to start...';
+                    break;
+                case 'processing':
+                    statusText.textContent = 'Processing your sad emotion...';
+                    break;
+                case 'completed':
+                    statusText.textContent = 'Processing completed!';
+                    break;
+                case 'failed':
+                    statusText.textContent = 'Processing failed, using fallback...';
+                    break;
+                default:
+                    statusText.textContent = 'Processing your sad emotion...';
+            }
+        }
+
+        function navigateToResultsWithSadImage(data) {
+            // Hide video step
+            document.getElementById('step5').classList.add('fade-out');
+            
+            setTimeout(() => {
+                document.getElementById('step5').classList.remove('active', 'fade-out');
+                
+                // Show results step (step 4)
+                currentStep = 4;
+                document.getElementById('step4').classList.add('active');
+                
+                // Display the processed sad image
+                displayFinalResults({
+                    sad_image_url: data.sad_image_url,
+                    original_image_url: data.original_image_url
+                });
+                
+                // Show the results container and OK button
+                document.getElementById('finalResultsContainer').style.display = 'block';
+                document.getElementById('finalOkBtn').style.display = 'block';
+                
+                console.log('Navigated to results with processed sad image');
+            }, 500);
+        }
+
+        function navigateToResultsWithFallback() {
+            // Hide video step
+            document.getElementById('step5').classList.add('fade-out');
+            
+            setTimeout(() => {
+                document.getElementById('step5').classList.remove('active', 'fade-out');
+                
+                // Show results step (step 4)
+                currentStep = 4;
+                document.getElementById('step4').classList.add('active');
+                
+                // Display fallback results
+                displayFallbackResults();
+                
+                // Show the results container and OK button
+                document.getElementById('finalResultsContainer').style.display = 'block';
+                document.getElementById('finalOkBtn').style.display = 'block';
+                
+                console.log('Navigated to results with fallback image');
+            }, 500);
         }
 
         function processBothEmotions() {
             document.getElementById('loading').style.display = 'block';
             document.getElementById('emotionProcessingContainer').style.display = 'none';
 
-            // Process the second selfie for the final result
-            if (secondSelfie) {
-                const formData = new FormData();
-                formData.append('phone_number', phoneNumber);
-                formData.append('selfie_image', secondSelfie);
-
-                fetch('/snickers/process-second-selfie', {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    },
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Final Emotion Processing Response:', data);
-
-                    // Hide loading and show the emotion processing container
-                    document.getElementById('loading').style.display = 'none';
-                    document.getElementById('emotionProcessingContainer').style.display = 'block';
-
-                    // Display the processed image in the portrait section
-                    displayEmotionResult(data);
-
-                    // Show done button after a delay
-                    setTimeout(() => {
-                        document.getElementById('doneBtn').style.display = 'block';
-                    }, 2000);
-                })
-                .catch(error => {
-                    console.error('Error processing final emotion:', error);
-
-                    // Hide loading and show fallback
-                    document.getElementById('loading').style.display = 'none';
-                    document.getElementById('emotionProcessingContainer').style.display = 'block';
-
-                    // Show fallback with original selfie
-                    displayEmotionFallback();
-
-                    // Show done button
-                    document.getElementById('doneBtn').style.display = 'block';
-                });
-            } else {
-                // No second selfie available, show fallback
+            // Use the already processed results
+            setTimeout(() => {
+                // Hide loading and show the emotion processing container
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('emotionProcessingContainer').style.display = 'block';
-                displayEmotionFallback();
-                document.getElementById('doneBtn').style.display = 'block';
-            }
+
+                // Display the processed image in the portrait section
+                displayEmotionResult({
+                    happy_image_url: secondSelfieHappyResult
+                });
+
+                // Show done button after a delay
+                setTimeout(() => {
+                    document.getElementById('doneBtn').style.display = 'block';
+                }, 2000);
+            }, 1500); // Simulate processing time
         }
 
         function displayEmotionResult(data) {

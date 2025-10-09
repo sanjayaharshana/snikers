@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Http;
 use App\Models\GeneratedImage;
+use App\Jobs\ProcessEmotionJob;
 use Illuminate\Support\Str;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
@@ -130,79 +131,32 @@ class SnickersController extends Controller
             // Save original image permanently
             Storage::disk('public')->put($originalPath, $imageData);
 
-            // Process with AI emotion editor for SAD emotion
-            \Log::info('Processing first selfie for sad emotion...');
-            $sadImage = $this->processWithAI($originalPath, 'sad');
-            \Log::info('Sad image processing result: ' . ($sadImage ? 'Success' : 'Failed'));
+            // Create initial database record
+            $generatedImage = GeneratedImage::create([
+                'phone_number' => $request->phone_number,
+                'original_image' => $originalPath,
+                'emotion_data' => json_encode([
+                    'original_processed' => true,
+                    'sad_processed' => false,
+                    'happy_processed' => false,
+                    'job_status' => 'queued',
+                    'job_updated_at' => now()->toISOString(),
+                    'campaign_completed' => false
+                ]),
+            ]);
 
-            // Process with AI emotion editor for HAPPY emotion
-            \Log::info('Processing first selfie for happy emotion...');
-            $happyImage = $this->processWithAI($originalPath, 'happy');
-            \Log::info('Happy image processing result: ' . ($happyImage ? 'Success' : 'Failed'));
-
-            if ($sadImage && $happyImage) {
-                // Save processed images
-                $sadFilename = 'sad_' . time() . '_' . Str::random(10) . '.jpg';
-                $happyFilename = 'happy_' . time() . '_' . Str::random(10) . '.jpg';
-                $sadPath = 'generated/' . $sadFilename;
-                $happyPath = 'generated/' . $happyFilename;
-
-                Storage::disk('public')->put($sadPath, base64_decode($sadImage));
-                Storage::disk('public')->put($happyPath, base64_decode($happyImage));
-
-                // Generate photo frame combining both images
-                $photoFramePath = $this->generatePhotoFrame($sadPath, $happyPath);
-
-                // Generate framed image (enhanced version with better styling)
-                $framedImagePath = $this->generateFramedImage($sadPath, $happyPath);
-
-                // Overlay frame on both images using Intervention Image
-                $framedImages = $this->overlayFrameOnImages($sadPath, $happyPath);
-
-                // Create combined framed image
-                $combinedFramedPath = $this->createCombinedFramedImage($sadPath, $happyPath);
-
-                // Save to database with all three images
-                $generatedImage = GeneratedImage::create([
-                    'phone_number' => $request->phone_number,
-                    'original_image' => $originalPath,
-                    'sad_image' => $sadPath,
-                    'happy_image' => $happyPath,
-                    'photo_frame_path' => $photoFramePath,
-                    'framed_image' => $combinedFramedPath, // Store the combined framed image
-                    'emotion_data' => json_encode([
-                        'original_processed' => true,
-                        'sad_processed' => true,
-                        'happy_processed' => true,
-                        'photo_frame_path' => $photoFramePath,
-                        'framed_image' => $framedImagePath,
-                        'sad_framed' => $framedImages['sad_framed'] ?? null,
-                        'happy_framed' => $framedImages['happy_framed'] ?? null,
-                        'combined_framed' => $combinedFramedPath,
-                        'campaign_completed' => true
-                    ]),
-                ]);
-
-                return response()->json([
-                    'success' => true,
-                    'phone_number' => $request->phone_number,
-                    'original_image_url' => Storage::url($originalPath),
-                    'sad_image_url' => Storage::url($sadPath),
-                    'happy_image_url' => Storage::url($happyPath),
-                    'photo_frame_url' => $photoFramePath ? Storage::url($photoFramePath) : null,
-                    'framed_image_url' => $combinedFramedPath ? Storage::url($combinedFramedPath) : null, // Main framed image from database column
-                    'sad_framed_url' => $framedImages['sad_framed'] ? Storage::url($framedImages['sad_framed']) : null,
-                    'happy_framed_url' => $framedImages['happy_framed'] ? Storage::url($framedImages['happy_framed']) : null,
-                    'combined_framed_url' => $combinedFramedPath ? Storage::url($combinedFramedPath) : null,
-                    'generated_image_id' => $generatedImage->id,
-                    'message' => 'All emotions processed successfully with frame overlays! Campaign completed!'
-                ]);
-            }
+            // Dispatch AI processing job for sad emotion
+            \Log::info('Dispatching AI processing job for sad emotion...');
+            ProcessEmotionJob::dispatch($generatedImage->id, $originalPath, 'sad', $request->phone_number);
 
             return response()->json([
-                'success' => false,
-                'message' => 'Failed to process emotions with AI'
-            ], 500);
+                'success' => true,
+                'phone_number' => $request->phone_number,
+                'original_image_url' => Storage::url($originalPath),
+                'generated_image_id' => $generatedImage->id,
+                'job_status' => 'queued',
+                'message' => 'Sad emotion processing job has been queued. Please check status later.'
+            ]);
 
 
     }
@@ -229,31 +183,36 @@ class SnickersController extends Controller
             // Save temporary image
             Storage::disk('public')->put($tempPath, $imageData);
 
-            // Process with AI emotion editor for HAPPY emotion only
-            \Log::info('Processing second selfie for happy emotion...');
-            $happyImage = $this->processWithAI($tempPath, 'happy');
-            \Log::info('Happy image processing result: ' . ($happyImage ? 'Success' : 'Failed'));
+            // Find the existing generated image record
+            $generatedImage = GeneratedImage::where('phone_number', $request->phone_number)
+                ->whereNotNull('sad_image')
+                ->latest()
+                ->first();
 
-            if ($happyImage) {
-                // Save processed image
-                $happyFilename = 'second_happy_' . time() . '_' . Str::random(10) . '.jpg';
-                $happyPath = 'generated/' . $happyFilename;
-
-                Storage::disk('public')->put($happyPath, base64_decode($happyImage));
-
+            if (!$generatedImage) {
                 return response()->json([
-                    'success' => true,
-                    'phone_number' => $request->phone_number,
-                    'original_image_url' => Storage::url($tempPath),
-                    'happy_image_url' => Storage::url($happyPath),
-                    'message' => 'Happy emotion processed successfully!'
-                ]);
+                    'success' => false,
+                    'message' => 'No previous selfie found. Please process first selfie first.'
+                ], 400);
             }
 
+            // Save the second selfie temporarily
+            $secondSelfieFilename = 'second_selfie_' . time() . '_' . Str::random(10) . '.jpg';
+            $secondSelfiePath = 'temp/' . $secondSelfieFilename;
+            Storage::disk('public')->put($secondSelfiePath, $imageData);
+
+            // Dispatch AI processing job for happy emotion
+            \Log::info('Dispatching AI processing job for happy emotion...');
+            ProcessEmotionJob::dispatch($generatedImage->id, $secondSelfiePath, 'happy', $request->phone_number);
+
             return response()->json([
-                'success' => false,
-                'message' => 'Failed to process happy emotion with AI'
-            ], 500);
+                'success' => true,
+                'phone_number' => $request->phone_number,
+                'original_image_url' => Storage::url($secondSelfiePath),
+                'generated_image_id' => $generatedImage->id,
+                'job_status' => 'queued',
+                'message' => 'Happy emotion processing job has been queued. Please check status later.'
+            ]);
 
         } catch (\Exception $e) {
             return response()->json([
@@ -265,32 +224,17 @@ class SnickersController extends Controller
 
     private function processWithAI($imagePath, $emotion = 'happy')
     {
-        // Check if AI mode is disabled for testing
-        if (env('AI_MODE', true) === false) {
-            \Log::info('AI_MODE is disabled, using dummy processing for emotion: ' . $emotion);
-            return $this->processWithDummyAI($imagePath, $emotion);
-        }
+//        // Check if AI mode is disabled for testing
+//        if (env('AI_MODE', true) === false) {
+//            \Log::info('AI_MODE is disabled, using dummy processing for emotion: ' . $emotion);
+//            return $this->processWithDummyAI($imagePath, $emotion);
+//        }
 
         $fullPath = Storage::disk('public')->path($imagePath);
 
         // Option 1: Use Google Gemini Imagen API (recommended for image emotion editing)
         if (env('USE_GOOGLE_GEMINI_API', false)) {
             return $this->processWithGoogleGemini($fullPath, $emotion);
-        }
-
-        // Option 2: Use Replicate API
-        if (env('USE_REPLICATE_API', false)) {
-            return $this->processWithReplicate($fullPath, $emotion);
-        }
-
-        // Option 3: Use Hugging Face API
-        if (env('USE_HUGGINGFACE_API', false)) {
-            return $this->processWithHuggingFace($fullPath, $emotion);
-        }
-
-        // Option 4: Use Google Cloud Vision + Custom Processing
-        if (env('USE_GOOGLE_VISION_API', false)) {
-            return $this->processWithGoogleVision($fullPath, $emotion);
         }
 
         // Fallback to original API
@@ -328,6 +272,8 @@ class SnickersController extends Controller
                         'responseModalities' => ["IMAGE"]
                     ]
                 ]);
+
+            dd($response);
 
             if ($response->successful()) {
                 $data = $response->json();
@@ -553,13 +499,105 @@ class SnickersController extends Controller
             'success' => true,
             'phone_number' => $latestImage->phone_number,
             'original_image_url' => Storage::url($latestImage->original_image),
-            'sad_image_url' => Storage::url($latestImage->sad_image),
-            'happy_image_url' => Storage::url($latestImage->happy_image),
+            'sad_image_url' => $latestImage->sad_image ? Storage::url($latestImage->sad_image) : null,
+            'happy_image_url' => $latestImage->happy_image ? Storage::url($latestImage->happy_image) : null,
             'photo_frame_url' => $latestImage->photo_frame_path ? Storage::url($latestImage->photo_frame_path) : null,
             'framed_image_url' => $latestImage->framed_image ? Storage::url($latestImage->framed_image) : null,
             'generated_image_id' => $latestImage->id,
             'emotion_data' => $latestImage->emotion_data,
             'message' => 'Test data retrieved successfully'
+        ]);
+    }
+
+    /**
+     * Check the status of AI processing jobs
+     */
+    public function checkJobStatus(Request $request)
+    {
+        $request->validate([
+            'generated_image_id' => 'required|integer|exists:generated_images,id'
+        ]);
+
+        $generatedImage = GeneratedImage::find($request->generated_image_id);
+
+        if (!$generatedImage) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Generated image not found'
+            ], 404);
+        }
+
+        $emotionData = json_decode($generatedImage->emotion_data, true) ?? [];
+        $jobStatus = $emotionData['job_status'] ?? 'unknown';
+        $jobUpdatedAt = $emotionData['job_updated_at'] ?? null;
+
+        $response = [
+            'success' => true,
+            'generated_image_id' => $generatedImage->id,
+            'phone_number' => $generatedImage->phone_number,
+            'job_status' => $jobStatus,
+            'job_updated_at' => $jobUpdatedAt,
+            'original_image_url' => Storage::url($generatedImage->original_image),
+            'sad_image_url' => $generatedImage->sad_image ? Storage::url($generatedImage->sad_image) : null,
+            'happy_image_url' => $generatedImage->happy_image ? Storage::url($generatedImage->happy_image) : null,
+            'emotion_data' => $emotionData
+        ];
+
+        // Add completion status if both emotions are processed
+        if ($emotionData['sad_processed'] ?? false && $emotionData['happy_processed'] ?? false) {
+            $response['campaign_completed'] = true;
+            $response['message'] = 'Campaign completed successfully!';
+        } elseif ($jobStatus === 'completed') {
+            $response['message'] = 'Processing completed for current emotion';
+        } elseif ($jobStatus === 'processing') {
+            $response['message'] = 'AI processing in progress...';
+        } elseif ($jobStatus === 'queued') {
+            $response['message'] = 'Job queued, waiting to start processing...';
+        } elseif ($jobStatus === 'failed') {
+            $response['message'] = 'Processing failed, using fallback images';
+        } else {
+            $response['message'] = 'Unknown status';
+        }
+
+        return response()->json($response);
+    }
+
+    /**
+     * Get all processing jobs for a phone number
+     */
+    public function getProcessingJobs(Request $request)
+    {
+        $request->validate([
+            'phone_number' => 'required|string|max:20'
+        ]);
+
+        $generatedImages = GeneratedImage::where('phone_number', $request->phone_number)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $jobs = $generatedImages->map(function ($image) {
+            $emotionData = json_decode($image->emotion_data, true) ?? [];
+            
+            return [
+                'id' => $image->id,
+                'phone_number' => $image->phone_number,
+                'job_status' => $emotionData['job_status'] ?? 'unknown',
+                'job_updated_at' => $emotionData['job_updated_at'] ?? null,
+                'sad_processed' => $emotionData['sad_processed'] ?? false,
+                'happy_processed' => $emotionData['happy_processed'] ?? false,
+                'campaign_completed' => $emotionData['campaign_completed'] ?? false,
+                'original_image_url' => Storage::url($image->original_image),
+                'sad_image_url' => $image->sad_image ? Storage::url($image->sad_image) : null,
+                'happy_image_url' => $image->happy_image ? Storage::url($image->happy_image) : null,
+                'created_at' => $image->created_at->toISOString()
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'phone_number' => $request->phone_number,
+            'jobs' => $jobs,
+            'total_jobs' => $jobs->count()
         ]);
     }
 
@@ -1723,20 +1761,20 @@ class SnickersController extends Controller
             // Use frame template dimensions as canvas size
             $canvasWidth = imagesx($frameImage);   // 1184px
             $canvasHeight = imagesy($frameImage);  // 2092px
-            
+
             // Define image areas in the template (estimated positions)
             $sadAreaY = 100;    // Top area for sad image (moved down a bit)
             $happyAreaY = 1030;  // Bottom area for happy image (adjusted accordingly)
-            
+
             // Scale images to fit template areas
             $templateImageWidth = 800;  // Approximate width for template image areas
             $templateImageHeight = 600; // Approximate height for template image areas
-            
+
             // Resize sad image to fit template area
             $sadResized = imagecreatetruecolor($templateImageWidth, $templateImageHeight);
             imagecopyresampled($sadResized, $sadImage, 0, 0, 0, 0, $templateImageWidth, $templateImageHeight, $sadWidth, $sadHeight);
-            
-            // Resize happy image to fit template area  
+
+            // Resize happy image to fit template area
             $happyResized = imagecreatetruecolor($templateImageWidth, $templateImageHeight);
             imagecopyresampled($happyResized, $happyImage, 0, 0, 0, 0, $templateImageWidth, $templateImageHeight, $happyWidth, $happyHeight);
 
@@ -1745,7 +1783,7 @@ class SnickersController extends Controller
 
             // Create final canvas from Snicker frame template
             $canvas = imagecreatetruecolor($canvasWidth, $canvasHeight);
-            
+
             // Place sad image in template sad area (behind frame)
             imagecopy($canvas, $sadResized, $imageX, $sadAreaY, 0, 0, $templateImageWidth, $templateImageHeight);
 
@@ -1814,22 +1852,22 @@ class SnickersController extends Controller
                 \Log::error('Snicker frame template not found for Intervention Image at: ' . $framePath);
                 return null;
             }
-            
+
             $frameTemplate = $manager->read($framePath);
             $canvasWidth = $frameTemplate->width();   // 1184px
             $canvasHeight = $frameTemplate->height();  // 2092px
-            
+
             // Define image areas in the template (estimated positions)
             $sadAreaY = 250;    // Top area for sad image (moved down a bit)
             $happyAreaY = 1030;  // Bottom area for happy image (adjusted accordingly)
-            
+
             // Scale images to fit template areas
             $templateImageWidth = 800;  // Approximate width for template image areas
             $templateImageHeight = 600; // Approximate height for template image areas
-            
+
             // Resize sad image to fit template area
             $sadResized = $sadImage->resize($templateImageWidth, $templateImageHeight);
-            
+
             // Resize happy image to fit template area
             $happyResized = $happyImage->resize($templateImageWidth, $templateImageHeight);
 

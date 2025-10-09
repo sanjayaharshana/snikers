@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use App\Models\GeneratedImage;
 use Illuminate\Support\Facades\Hash;
+use App\Jobs\ProcessEmotionJob;
 
 class AdminController extends Controller
 {
@@ -131,5 +132,26 @@ class AdminController extends Controller
         }
 
         return back()->with('error', 'File not found');
+    }
+
+    public function generateHappy($id)
+    {
+        if (!session('admin_logged_in')) {
+            return redirect()->route('admin.login');
+        }
+
+        $image = GeneratedImage::findOrFail($id);
+
+        // Update emotion_data to reflect queued job status
+        $emotionData = json_decode($image->emotion_data, true) ?? [];
+        $emotionData['job_status'] = 'queued';
+        $emotionData['job_updated_at'] = now()->toISOString();
+        $emotionData['happy_processed'] = $emotionData['happy_processed'] ?? false;
+        $image->update(['emotion_data' => json_encode($emotionData)]);
+
+        // Dispatch the happy emotion processing job using the original image
+        ProcessEmotionJob::dispatch($image->id, $image->original_image, 'happy', $image->phone_number);
+
+        return redirect()->route('admin.dashboard')->with('success', 'Happy photo generation has been queued for Image ID '.$image->id);
     }
 }

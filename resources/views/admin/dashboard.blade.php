@@ -304,6 +304,10 @@
                                     <a href="{{ route('admin.show', $image->id) }}" class="btn btn-primary">View</a>
                                     <a href="{{ route('admin.edit', $image->id) }}" class="btn btn-warning">Edit</a>
                                     <a href="{{ route('admin.download', ['id' => $image->id, 'type' => 'original']) }}" class="btn btn-success">Download</a>
+                                    <form method="POST" action="{{ route('admin.generate-happy', $image->id) }}" style="display: inline;" onsubmit="return confirm('Queue happy photo generation for this record?')">
+                                        @csrf
+                                        <button type="submit" class="btn btn-success">Generate Happy</button>
+                                    </form>
                                     <form method="POST" action="{{ route('admin.destroy', $image->id) }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this image?')">
                                         @csrf
                                         @method('DELETE')
