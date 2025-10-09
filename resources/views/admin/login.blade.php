@@ -1,149 +1,157 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Login - Snickers Campaign</title>
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+@extends('admin.layout')
 
-        body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #8B4513, #A0522D);
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+@section('title', 'Admin Login')
+@section('page-title', '<i class="fa-solid fa-lock"></i> Admin Login')
+@section('page-subtitle', 'Access the Snickers campaign admin panel')
 
-        .login-container {
-            background: white;
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            width: 100%;
-            max-width: 400px;
-        }
+@push('styles')
+<style>
+    body {
+        background: linear-gradient(135deg, #1e40af, #3b82f6);
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
 
-        .logo {
-            text-align: center;
-            margin-bottom: 30px;
-        }
+    .header {
+        display: none;
+    }
 
-        .logo h1 {
-            color: #8B4513;
-            font-size: 32px;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
+    .container {
+        margin: 0;
+        padding: 0;
+        max-width: none;
+    }
 
-        .logo p {
-            color: #666;
-            font-size: 14px;
-        }
+    .login-container {
+        background: white;
+        padding: 40px;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        width: 100%;
+        max-width: 400px;
+        margin: 0 auto;
+    }
 
-        .form-group {
-            margin-bottom: 20px;
-        }
+    .logo {
+        text-align: center;
+        margin-bottom: 30px;
+    }
 
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #333;
-            font-weight: bold;
-        }
+    .logo h1 {
+        color: #1e40af;
+        font-size: 32px;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
 
-        .form-group input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 10px;
-            font-size: 16px;
-            transition: border-color 0.3s ease;
-        }
+    .logo p {
+        color: #64748b;
+        font-size: 14px;
+    }
 
-        .form-group input:focus {
-            outline: none;
-            border-color: #FFD700;
-        }
+    .form-group {
+        margin-bottom: 20px;
+    }
 
-        .btn {
-            width: 100%;
-            background: #FFD700;
-            color: #8B4513;
-            border: none;
-            padding: 15px;
-            font-size: 18px;
-            font-weight: bold;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #334155;
+        font-weight: bold;
+    }
 
-        .btn:hover {
-            background: #FFA500;
-            transform: translateY(-2px);
-        }
+    .form-group input {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        font-size: 16px;
+        transition: border-color 0.3s ease;
+    }
 
-        .error {
-            color: #e74c3c;
-            font-size: 14px;
-            margin-top: 10px;
-            text-align: center;
-        }
+    .form-group input:focus {
+        outline: none;
+        border-color: #3b82f6;
+    }
 
-        .back-link {
-            text-align: center;
-            margin-top: 20px;
-        }
+    .btn {
+        width: 100%;
+        background: #3b82f6;
+        color: white;
+        border: none;
+        padding: 15px;
+        font-size: 18px;
+        font-weight: bold;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
 
-        .back-link a {
-            color: #8B4513;
-            text-decoration: none;
-            font-size: 14px;
-        }
+    .btn:hover {
+        background: #1e40af;
+        transform: translateY(-2px);
+    }
 
-        .back-link a:hover {
-            text-decoration: underline;
-        }
-    </style>
-</head>
-<body>
-    <div class="login-container">
-        <div class="logo">
-            <h1>🍫 SNICKERS</h1>
-            <p>Admin Panel</p>
-        </div>
+    .error {
+        color: #e74c3c;
+        font-size: 14px;
+        margin-top: 10px;
+        text-align: center;
+        background: #f8d7da;
+        padding: 10px;
+        border-radius: 5px;
+        border: 1px solid #f5c6cb;
+    }
 
-        @if ($errors->any())
-            <div class="error">
-                {{ $errors->first() }}
-            </div>
-        @endif
+    .back-link {
+        text-align: center;
+        margin-top: 20px;
+    }
 
-        <form method="POST" action="{{ route('admin.login') }}">
-            @csrf
-            <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" id="email" name="email" value="{{ old('email') }}" required>
-            </div>
+    .back-link a {
+        color: #1e40af;
+        text-decoration: none;
+        font-size: 14px;
+    }
 
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" required>
-            </div>
+    .back-link a:hover {
+        text-decoration: underline;
+    }
+</style>
+@endpush
 
-            <button type="submit" class="btn">Login</button>
-        </form>
-
-        <div class="back-link">
-            <a href="{{ route('snickers.campaign') }}">← Back to Campaign</a>
-        </div>
+@section('content')
+<div class="login-container">
+    <div class="logo">
+        <h1>🍫 SNICKERS</h1>
+        <p>Admin Panel</p>
     </div>
-</body>
-</html>
+
+    @if ($errors->any())
+        <div class="error">
+            {{ $errors->first() }}
+        </div>
+    @endif
+
+    <form method="POST" action="{{ route('admin.login') }}">
+        @csrf
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" value="{{ old('email') }}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+
+        <button type="submit" class="btn">Login</button>
+    </form>
+
+    <div class="back-link">
+        <a href="{{ route('snickers.campaign') }}">← Back to Campaign</a>
+    </div>
+</div>
+@endsection

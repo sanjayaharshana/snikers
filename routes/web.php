@@ -31,5 +31,20 @@ Route::delete('/admin/images/{id}', [AdminController::class, 'destroy'])->name('
 Route::get('/admin/images/{id}/download/{type}', [AdminController::class, 'download'])->name('admin.download');
 Route::post('/admin/images/{id}/generate-happy', [AdminController::class, 'generateHappy'])->name('admin.generate-happy');
 
+// Image Management Routes
+Route::middleware(['admin'])->prefix('admin/images')->name('admin.images.')->group(function () {
+    Route::get('/', [App\Http\Controllers\ImageController::class, 'index'])->name('index');
+    Route::get('/create', [App\Http\Controllers\ImageController::class, 'create'])->name('create');
+    Route::post('/', [App\Http\Controllers\ImageController::class, 'store'])->name('store');
+    Route::get('/{image}', [App\Http\Controllers\ImageController::class, 'show'])->name('show');
+    Route::get('/{image}/edit', [App\Http\Controllers\ImageController::class, 'edit'])->name('edit');
+    Route::put('/{image}', [App\Http\Controllers\ImageController::class, 'update'])->name('update');
+    Route::delete('/{image}', [App\Http\Controllers\ImageController::class, 'destroy'])->name('destroy');
+    Route::get('/{image}/download/{type}', [App\Http\Controllers\ImageController::class, 'download'])->name('download');
+    Route::post('/{image}/generate-happy', [App\Http\Controllers\ImageController::class, 'generateHappy'])->name('generate-happy');
+    Route::post('/{image}/generate-sad', [App\Http\Controllers\ImageController::class, 'generateSad'])->name('generate-sad');
+    Route::post('/bulk-action', [App\Http\Controllers\ImageController::class, 'bulkAction'])->name('bulk-action');
+});
+
 // Preview Routes
 Route::get('/preview', [PreviewController::class, 'index'])->name('preview.kiosk');
