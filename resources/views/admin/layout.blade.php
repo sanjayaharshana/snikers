@@ -1061,6 +1061,10 @@
                         <span class="nav-item-icon"><i class="fa-regular fa-images"></i></span>
                         <span class="nav-item-text">Generated Images</span>
                     </a>
+                    <a href="{{ route('admin.queue-jobs') }}" class="nav-item {{ request()->routeIs('admin.queue-jobs') ? 'active' : '' }}">
+                        <span class="nav-item-icon"><i class="fa-solid fa-tasks"></i></span>
+                        <span class="nav-item-text">Queue Jobs</span>
+                    </a>
                 </div>
             </nav>
 

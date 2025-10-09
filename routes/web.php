@@ -24,6 +24,10 @@ Route::get('/admin/login', [AdminController::class, 'showLogin'])->name('admin.l
 Route::post('/admin/login', [AdminController::class, 'login'])->name('admin.login');
 Route::get('/admin/logout', [AdminController::class, 'logout'])->name('admin.logout');
 Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+Route::get('/admin/queue-jobs', [AdminController::class, 'queueJobs'])->name('admin.queue-jobs');
+Route::post('/admin/queue-jobs/{id}/retry', [AdminController::class, 'retryJob'])->name('admin.retry-job');
+Route::delete('/admin/queue-jobs/{id}/delete', [AdminController::class, 'deleteJob'])->name('admin.delete-job');
+Route::post('/admin/queue-jobs/clear', [AdminController::class, 'clearQueue'])->name('admin.clear-queue');
 Route::get('/admin/images/{id}', [AdminController::class, 'show'])->name('admin.show');
 Route::get('/admin/images/{id}/edit', [AdminController::class, 'edit'])->name('admin.edit');
 Route::put('/admin/images/{id}', [AdminController::class, 'update'])->name('admin.update');

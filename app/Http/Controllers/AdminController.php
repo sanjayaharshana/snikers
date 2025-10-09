@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Storage;
 use App\Models\GeneratedImage;
 use Illuminate\Support\Facades\Hash;
 use App\Jobs\ProcessEmotionJob;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Queue;
 
 class AdminController extends Controller
 {
@@ -153,5 +155,76 @@ class AdminController extends Controller
         ProcessEmotionJob::dispatch($image->id, $image->original_image, 'happy', $image->phone_number);
 
         return redirect()->route('admin.dashboard')->with('success', 'Happy photo generation has been queued for Image ID '.$image->id);
+    }
+
+    public function queueJobs()
+    {
+        if (!session('admin_logged_in')) {
+            return redirect()->route('admin.login');
+        }
+
+        // Get jobs from the jobs table
+        $jobs = DB::table('jobs')
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
+
+        // Get failed jobs
+        $failedJobs = DB::table('failed_jobs')
+            ->orderBy('failed_at', 'desc')
+            ->paginate(20);
+
+        // Get queue statistics
+        $stats = [
+            'pending_jobs' => DB::table('jobs')->count(),
+            'failed_jobs' => DB::table('failed_jobs')->count(),
+            'total_processed' => DB::table('jobs')->whereNotNull('reserved_at')->count(),
+        ];
+
+        return view('admin.queue-jobs', compact('jobs', 'failedJobs', 'stats'));
+    }
+
+    public function retryJob($id)
+    {
+        if (!session('admin_logged_in')) {
+            return redirect()->route('admin.login');
+        }
+
+        try {
+            // Retry a failed job
+            \Artisan::call('queue:retry', ['id' => $id]);
+            return redirect()->route('admin.queue-jobs')->with('success', 'Job retried successfully');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.queue-jobs')->with('error', 'Failed to retry job: ' . $e->getMessage());
+        }
+    }
+
+    public function deleteJob($id)
+    {
+        if (!session('admin_logged_in')) {
+            return redirect()->route('admin.login');
+        }
+
+        try {
+            // Delete a failed job
+            DB::table('failed_jobs')->where('id', $id)->delete();
+            return redirect()->route('admin.queue-jobs')->with('success', 'Job deleted successfully');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.queue-jobs')->with('error', 'Failed to delete job: ' . $e->getMessage());
+        }
+    }
+
+    public function clearQueue()
+    {
+        if (!session('admin_logged_in')) {
+            return redirect()->route('admin.login');
+        }
+
+        try {
+            // Clear all pending jobs
+            DB::table('jobs')->truncate();
+            return redirect()->route('admin.queue-jobs')->with('success', 'Queue cleared successfully');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.queue-jobs')->with('error', 'Failed to clear queue: ' . $e->getMessage());
+        }
     }
 }
