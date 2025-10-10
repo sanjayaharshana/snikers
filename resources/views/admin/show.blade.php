@@ -91,6 +91,14 @@
             <a href="{{ route('admin.download', ['id' => $image->id, 'type' => 'framed']) }}" class="btn btn-success">Download Framed</a>
         </div>
     </div>
+    @elseif($image->sad_image && $image->happy_image)
+    <div class="image-card">
+        <div class="image-header">Framed Combined Image</div>
+        <div class="image-content">
+            <p>Generate framed image with both emotions</p>
+            <a href="{{ route('admin.framedImage', $image->id) }}" class="btn btn-primary">View Framed Image</a>
+        </div>
+    </div>
     @endif
 </div>
 
