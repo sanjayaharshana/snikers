@@ -53,6 +53,12 @@ class ProcessEmotionJob implements ShouldQueue
         try {
             Log::info("Starting AI processing job for emotion: {$this->emotion}, Image ID: {$this->generatedImageId}");
 
+            // Check if direct API mode is enabled
+            if (env('DIRECT_API', false)) {
+                Log::info("Direct API mode is enabled, skipping queue job processing for emotion: {$this->emotion}");
+                return;
+            }
+
             // Find the generated image record
             $generatedImage = GeneratedImage::find($this->generatedImageId);
             if (!$generatedImage) {

@@ -146,18 +146,60 @@ class SnickersController extends Controller
                 ]),
             ]);
 
-            // Dispatch AI processing job for sad emotion
-            \Log::info('Dispatching AI processing job for sad emotion...');
-            ProcessEmotionJob::dispatch($generatedImage->id, $originalPath, 'sad', $request->phone_number);
+            // Check if direct API mode is enabled
+            if (env('DIRECT_API', false)) {
+                \Log::info('Direct API mode enabled, processing sad emotion immediately...');
+                
+                // Process sad emotion directly
+                $sadImage = $this->processWithAI($originalPath, 'sad');
+                
+                if ($sadImage) {
+                    // Save processed sad image
+                    $sadFilename = 'sad_' . time() . '_' . Str::random(10) . '.jpg';
+                    $sadPath = 'generated/' . $sadFilename;
+                    Storage::disk('public')->put($sadPath, base64_decode($sadImage));
+                    
+                    // Update database record
+                    $generatedImage->update(['sad_image' => $sadPath]);
+                    
+                    // Update emotion data
+                    $emotionData = json_decode($generatedImage->emotion_data, true);
+                    $emotionData['sad_processed'] = true;
+                    $emotionData['sad_image_path'] = $sadPath;
+                    $emotionData['job_status'] = 'completed';
+                    $emotionData['job_updated_at'] = now()->toISOString();
+                    $generatedImage->update(['emotion_data' => json_encode($emotionData)]);
+                    
+                    return response()->json([
+                        'success' => true,
+                        'phone_number' => $request->phone_number,
+                        'original_image_url' => Storage::url($originalPath),
+                        'sad_image_url' => Storage::url($sadPath),
+                        'generated_image_id' => $generatedImage->id,
+                        'job_status' => 'completed',
+                        'message' => 'Sad emotion processed successfully using direct API.'
+                    ]);
+                } else {
+                    \Log::warning('Direct API processing failed for sad emotion');
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Direct API processing failed. Please try again.'
+                    ], 500);
+                }
+            } else {
+                // Dispatch AI processing job for sad emotion (queue mode)
+                \Log::info('Queue mode enabled, dispatching AI processing job for sad emotion...');
+                ProcessEmotionJob::dispatch($generatedImage->id, $originalPath, 'sad', $request->phone_number);
 
-            return response()->json([
-                'success' => true,
-                'phone_number' => $request->phone_number,
-                'original_image_url' => Storage::url($originalPath),
-                'generated_image_id' => $generatedImage->id,
-                'job_status' => 'queued',
-                'message' => 'Sad emotion processing job has been queued. Please check status later.'
-            ]);
+                return response()->json([
+                    'success' => true,
+                    'phone_number' => $request->phone_number,
+                    'original_image_url' => Storage::url($originalPath),
+                    'generated_image_id' => $generatedImage->id,
+                    'job_status' => 'queued',
+                    'message' => 'Sad emotion processing job has been queued. Please check status later.'
+                ]);
+            }
 
 
     }
@@ -202,18 +244,62 @@ class SnickersController extends Controller
             $secondSelfiePath = 'temp/' . $secondSelfieFilename;
             Storage::disk('public')->put($secondSelfiePath, $imageData);
 
-            // Dispatch AI processing job for happy emotion
-            \Log::info('Dispatching AI processing job for happy emotion...');
-            ProcessEmotionJob::dispatch($generatedImage->id, $secondSelfiePath, 'happy', $request->phone_number);
+            // Check if direct API mode is enabled
+            if (env('DIRECT_API', false)) {
+                \Log::info('Direct API mode enabled, processing happy emotion immediately...');
+                
+                // Process happy emotion directly
+                $happyImage = $this->processWithAI($secondSelfiePath, 'happy');
+                
+                if ($happyImage) {
+                    // Save processed happy image
+                    $happyFilename = 'happy_' . time() . '_' . Str::random(10) . '.jpg';
+                    $happyPath = 'generated/' . $happyFilename;
+                    Storage::disk('public')->put($happyPath, base64_decode($happyImage));
+                    
+                    // Update database record
+                    $generatedImage->update(['happy_image' => $happyPath]);
+                    
+                    // Update emotion data
+                    $emotionData = json_decode($generatedImage->emotion_data, true);
+                    $emotionData['happy_processed'] = true;
+                    $emotionData['happy_image_path'] = $happyPath;
+                    $emotionData['job_status'] = 'completed';
+                    $emotionData['job_updated_at'] = now()->toISOString();
+                    $emotionData['campaign_completed'] = true;
+                    $generatedImage->update(['emotion_data' => json_encode($emotionData)]);
+                    
+                    return response()->json([
+                        'success' => true,
+                        'phone_number' => $request->phone_number,
+                        'original_image_url' => Storage::url($secondSelfiePath),
+                        'happy_image_url' => Storage::url($happyPath),
+                        'generated_image_id' => $generatedImage->id,
+                        'job_status' => 'completed',
+                        'campaign_completed' => true,
+                        'message' => 'Happy emotion processed successfully using direct API. Campaign completed!'
+                    ]);
+                } else {
+                    \Log::warning('Direct API processing failed for happy emotion');
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Direct API processing failed. Please try again.'
+                    ], 500);
+                }
+            } else {
+                // Dispatch AI processing job for happy emotion (queue mode)
+                \Log::info('Queue mode enabled, dispatching AI processing job for happy emotion...');
+                ProcessEmotionJob::dispatch($generatedImage->id, $secondSelfiePath, 'happy', $request->phone_number);
 
-            return response()->json([
-                'success' => true,
-                'phone_number' => $request->phone_number,
-                'original_image_url' => Storage::url($secondSelfiePath),
-                'generated_image_id' => $generatedImage->id,
-                'job_status' => 'queued',
-                'message' => 'Happy emotion processing job has been queued. Please check status later.'
-            ]);
+                return response()->json([
+                    'success' => true,
+                    'phone_number' => $request->phone_number,
+                    'original_image_url' => Storage::url($secondSelfiePath),
+                    'generated_image_id' => $generatedImage->id,
+                    'job_status' => 'queued',
+                    'message' => 'Happy emotion processing job has been queued. Please check status later.'
+                ]);
+            }
 
         } catch (\Exception $e) {
             return response()->json([

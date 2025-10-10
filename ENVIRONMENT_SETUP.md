@@ -69,6 +69,10 @@ VITE_PUSHER_APP_CLUSTER="${PUSHER_APP_CLUSTER}"
 # Set to false for testing without API calls (saves billing costs)
 AI_MODE=true
 
+# Direct API Mode (Process images immediately without queue jobs)
+# Set to true for immediate processing, false for queue-based processing
+DIRECT_API=false
+
 # AILabTools API Configuration (Primary - Default)
 USE_AILABTOOLS_API=true
 AILABTOOLS_API_KEY=imff7TwAtdh9xZku1PWRCMjN9CJqLFvr5BevQyKI3ZzEy6DTOrXVI8S4hWgo146U
@@ -109,6 +113,39 @@ USE_AILABTOOLS_API=false
 USE_GOOGLE_GEMINI_API=true
 GOOGLE_GEMINI_API_KEY=your_gemini_api_key_here
 ```
+
+### Processing Modes
+
+#### Queue Mode (Default)
+Process images using background queue jobs:
+
+```env
+DIRECT_API=false
+```
+
+**Benefits:**
+- Better for high-volume processing
+- Non-blocking user experience
+- Handles failures gracefully
+- Scales with multiple workers
+
+#### Direct API Mode
+Process images immediately without queue jobs:
+
+```env
+DIRECT_API=true
+```
+
+**Benefits:**
+- Immediate results
+- Simpler deployment (no queue workers needed)
+- Real-time processing
+- Better for low-volume or testing
+
+**Considerations:**
+- Blocks HTTP requests during processing
+- May timeout on slow API responses
+- Requires reliable API connections
 
 ### Testing Mode (No API Calls)
 To test without making API calls:
