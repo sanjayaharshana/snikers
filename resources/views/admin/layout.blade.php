@@ -920,6 +920,15 @@
             font-weight: 500;
         }
 
+        .nav-item-badge {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 12px;
+            opacity: 0.6;
+        }
+
         .content-area {
             flex: 1;
             margin-left: 250px;
@@ -1064,6 +1073,11 @@
                     <a href="{{ route('admin.queue-jobs') }}" class="nav-item {{ request()->routeIs('admin.queue-jobs') ? 'active' : '' }}">
                         <span class="nav-item-icon"><i class="fa-solid fa-tasks"></i></span>
                         <span class="nav-item-text">Queue Jobs</span>
+                    </a>
+                    <a href="{{ route('snickers.campaign') }}" target="_blank" class="nav-item">
+                        <span class="nav-item-icon"><i class="fa-solid fa-candy-cane"></i></span>
+                        <span class="nav-item-text">Snickers Campaign</span>
+                        <span class="nav-item-badge"><i class="fa-solid fa-external-link-alt"></i></span>
                     </a>
                 </div>
             </nav>

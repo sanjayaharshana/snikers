@@ -63,6 +63,49 @@
 
     <div class="dashboard-card">
         <div class="dashboard-card-header">
+            <div class="dashboard-card-title"><i class="fa-solid fa-coins"></i> AI Token Usage</div>
+            <div class="dashboard-card-subtitle">API consumption and costs</div>
+        </div>
+        <div class="dashboard-card-body">
+            <div class="metric-grid">
+                <div class="metric-item">
+                    <div class="metric-value">{{ number_format($tokenStats['today']['tokens']) }}</div>
+                    <div class="metric-label">Tokens Today</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-value">${{ number_format($tokenStats['today']['cost'], 4) }}</div>
+                    <div class="metric-label">Cost Today</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-value">{{ $tokenStats['today']['api_calls'] }}</div>
+                    <div class="metric-label">API Calls Today</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-value">${{ number_format($tokenStats['all_time']['cost'], 2) }}</div>
+                    <div class="metric-label">Total Cost</div>
+                </div>
+            </div>
+            
+            @if($tokenStats['by_service']->count() > 0)
+            <div class="token-breakdown">
+                <h4>Usage by Service (This Month)</h4>
+                <div class="service-stats">
+                    @foreach($tokenStats['by_service'] as $service)
+                    <div class="service-item">
+                        <span class="service-name">{{ ucfirst(str_replace('_', ' ', $service->api_service)) }}</span>
+                        <span class="service-metrics">
+                            {{ number_format($service->total_tokens) }} tokens • ${{ number_format($service->total_cost, 4) }}
+                        </span>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+            @endif
+        </div>
+    </div>
+
+    <div class="dashboard-card">
+        <div class="dashboard-card-header">
             <div class="dashboard-card-title"><i class="fa-solid fa-chart-line"></i> Growth Trends</div>
             <div class="dashboard-card-subtitle">Campaign performance</div>
         </div>
@@ -169,5 +212,62 @@ function systemStatus() {
     alert('System status check would be implemented here');
 }
 </script>
+
+<style>
+.token-breakdown {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.token-breakdown h4 {
+    margin: 0 0 15px 0;
+    color: #8B4513;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.service-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.service-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    border-left: 3px solid #8B4513;
+}
+
+.service-name {
+    font-weight: 500;
+    color: #333;
+    font-size: 13px;
+}
+
+.service-metrics {
+    font-size: 12px;
+    color: #666;
+    font-weight: 500;
+}
+
+.metric-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: #8B4513;
+    line-height: 1.2;
+}
+
+.metric-label {
+    font-size: 12px;
+    color: #666;
+    margin-top: 4px;
+    font-weight: 500;
+}
+</style>
 @endpush
 @endsection

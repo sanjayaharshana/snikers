@@ -5,7 +5,18 @@ The Snickers campaign now supports multiple AI APIs for emotion-based image proc
 
 ## Available Options
 
-### Option 1: Google Gemini Imagen API (Recommended)
+### Option 1: AILabTools API (Primary - Default)
+**Best for**: Snickers campaign emotion processing
+**Pros**: Already configured, reliable, cost-effective
+**Cons**: Limited customization options
+
+**Setup**:
+```env
+USE_AILABTOOLS_API=true
+AILABTOOLS_API_KEY=imff7TwAtdh9xZku1PWRCMjN9CJqLFvr5BevQyKI3ZzEy6DTOrXVI8S4hWgo146U
+```
+
+### Option 2: Google Gemini Imagen API (Alternative)
 **Best for**: High-quality image emotion editing using Google's latest AI
 **Pros**: Excellent image quality, Google's advanced AI, good for emotion manipulation
 **Cons**: Requires Google AI Studio access, paid service
@@ -65,17 +76,6 @@ USE_GOOGLE_VISION_API=true
 GOOGLE_VISION_API_KEY=your_api_key_here
 ```
 
-### Option 4: Original API (Fallback)
-**Best for**: Current working setup
-**Pros**: Already configured
-**Cons**: May have limitations
-
-**Setup**:
-```env
-# Keep current AILABTOOLS_API_KEY
-AILABTOOLS_API_KEY=imff7TwAtdh9xZku1PWRCMjN9CJqLFvr5BevQyKI3ZzEy6DTOrXVI8S4hWgo146U
-```
-
 ## How to Switch APIs
 
 1. **Choose your preferred API** from the options above
@@ -84,6 +84,12 @@ AILABTOOLS_API_KEY=imff7TwAtdh9xZku1PWRCMjN9CJqLFvr5BevQyKI3ZzEy6DTOrXVI8S4hWgo1
 4. **Restart your Laravel application**
 
 ## Example Configuration
+
+For AILabTools API (Default):
+```env
+USE_AILABTOOLS_API=true
+AILABTOOLS_API_KEY=imff7TwAtdh9xZku1PWRCMjN9CJqLFvr5BevQyKI3ZzEy6DTOrXVI8S4hWgo146U
+```
 
 For Google Gemini Imagen API:
 ```env

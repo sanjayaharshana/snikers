@@ -10,6 +10,7 @@ use App\Jobs\ProcessEmotionJob;
 use Illuminate\Support\Str;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
+use App\Services\TokenTrackingService;
 
 class SnickersController extends Controller
 {
@@ -224,20 +225,25 @@ class SnickersController extends Controller
 
     private function processWithAI($imagePath, $emotion = 'happy')
     {
-//        // Check if AI mode is disabled for testing
-//        if (env('AI_MODE', true) === false) {
-//            \Log::info('AI_MODE is disabled, using dummy processing for emotion: ' . $emotion);
-//            return $this->processWithDummyAI($imagePath, $emotion);
-//        }
+        // Check if AI mode is disabled for testing
+        if (env('AI_MODE', true) === false) {
+            \Log::info('AI_MODE is disabled, using dummy processing for emotion: ' . $emotion);
+            return $this->processWithDummyAI($imagePath, $emotion);
+        }
 
         $fullPath = Storage::disk('public')->path($imagePath);
 
-        // Option 1: Use Google Gemini Imagen API (recommended for image emotion editing)
+        // Option 1: Use AILabTools API (primary for Snickers campaign)
+        if (env('USE_AILABTOOLS_API', true)) {
+            return $this->processWithOriginalAPI($fullPath, $emotion);
+        }
+
+        // Option 2: Use Google Gemini Imagen API (alternative)
         if (env('USE_GOOGLE_GEMINI_API', false)) {
             return $this->processWithGoogleGemini($fullPath, $emotion);
         }
 
-        // Fallback to original API
+        // Fallback to AILabTools API
         return $this->processWithOriginalAPI($fullPath, $emotion);
     }
 
@@ -273,7 +279,20 @@ class SnickersController extends Controller
                     ]
                 ]);
 
-            dd($response);
+            // Log token usage
+            TokenTrackingService::logApiCall([
+                'api_service' => 'google_gemini',
+                'operation_type' => 'emotion_processing',
+                'emotion' => $emotion,
+                'model_used' => 'gemini-2.5-flash-image-preview',
+                'request_data' => [
+                    'prompt' => $prompt,
+                    'image_size' => strlen($imageData),
+                ],
+                'response_data' => $response->json(),
+                'success' => $response->successful(),
+                'error_message' => $response->successful() ? null : $response->body(),
+            ]);
 
             if ($response->successful()) {
                 $data = $response->json();
@@ -408,6 +427,21 @@ class SnickersController extends Controller
         ])->attach('image_target', file_get_contents($imagePath), basename($imagePath))
         ->post('https://www.ailabapi.com/api/portrait/effects/emotion-editor', [
             'service_choice' => $serviceChoice
+        ]);
+
+        // Log token usage
+        TokenTrackingService::logApiCall([
+            'api_service' => 'ailabtools',
+            'operation_type' => 'emotion_processing',
+            'emotion' => $emotion,
+            'model_used' => 'emotion-editor',
+            'request_data' => [
+                'service_choice' => $serviceChoice,
+                'image_path' => basename($imagePath),
+            ],
+            'response_data' => $response->json(),
+            'success' => $response->successful(),
+            'error_message' => $response->successful() ? null : $response->body(),
         ]);
 
         if ($response->successful()) {

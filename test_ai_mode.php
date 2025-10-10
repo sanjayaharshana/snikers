@@ -38,11 +38,11 @@ if (!$aiMode) {
 // Check which AI services are configured
 echo "\n=== AI Service Configuration ===\n";
 $services = [
+    'AILabTools (Primary)' => env('USE_AILABTOOLS_API', true),
     'Google Gemini' => env('USE_GOOGLE_GEMINI_API', false),
     'Replicate' => env('USE_REPLICATE_API', false),
     'Hugging Face' => env('USE_HUGGINGFACE_API', false),
     'Google Vision' => env('USE_GOOGLE_VISION_API', false),
-    'AILabTools (Fallback)' => true
 ];
 
 foreach ($services as $service => $enabled) {

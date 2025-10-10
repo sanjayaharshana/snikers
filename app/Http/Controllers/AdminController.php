@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Jobs\ProcessEmotionJob;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
+use App\Services\TokenTrackingService;
 
 class AdminController extends Controller
 {
@@ -49,7 +50,9 @@ class AdminController extends Controller
         }
 
         $images = GeneratedImage::orderBy('created_at', 'desc')->paginate(10);
-        return view('admin.dashboard', compact('images'));
+        $tokenStats = TokenTrackingService::getDashboardStats();
+        
+        return view('admin.dashboard', compact('images', 'tokenStats'));
     }
 
     public function show($id)
