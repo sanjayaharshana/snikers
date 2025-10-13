@@ -1,23 +1,23 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\SnickersController;
+use App\Http\Controllers\DainteeController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\PreviewController;
 
 Route::get('/', function () {
-    return redirect()->route('snickers.campaign');
+    return redirect()->route('daintee.campaign');
 });
 
-// Snickers Campaign Routes
-Route::get('/snickers', [SnickersController::class, 'index'])->name('snickers.campaign');
-Route::post('/snickers/capture', [SnickersController::class, 'capture'])->name('snickers.capture');
-Route::post('/snickers/process-first-selfie', [SnickersController::class, 'processFirstSelfie'])->name('snickers.process-first-selfie');
-Route::post('/snickers/process-second-selfie', [SnickersController::class, 'processSecondSelfie'])->name('snickers.process-second-selfie');
-Route::get('/snickers/image/{filename}', [SnickersController::class, 'getImage'])->name('snickers.image');
-Route::get('/snickers/test-step4', [SnickersController::class, 'testStep4Data'])->name('snickers.test-step4');
-Route::post('/snickers/check-job-status', [SnickersController::class, 'checkJobStatus'])->name('snickers.check-job-status');
-Route::get('/snickers/processing-jobs', [SnickersController::class, 'getProcessingJobs'])->name('snickers.processing-jobs');
+// Daintee Campaign Routes
+Route::get('/daintee', [DainteeController::class, 'index'])->name('daintee.campaign');
+Route::post('/daintee/capture', [DainteeController::class, 'capture'])->name('daintee.capture');
+Route::post('/daintee/process-first-selfie', [DainteeController::class, 'processFirstSelfie'])->name('daintee.process-first-selfie');
+Route::post('/daintee/process-second-selfie', [DainteeController::class, 'processSecondSelfie'])->name('daintee.process-second-selfie');
+Route::get('/daintee/image/{filename}', [DainteeController::class, 'getImage'])->name('daintee.image');
+Route::get('/daintee/test-step4', [DainteeController::class, 'testStep4Data'])->name('daintee.test-step4');
+Route::post('/daintee/check-job-status', [DainteeController::class, 'checkJobStatus'])->name('daintee.check-job-status');
+Route::get('/daintee/processing-jobs', [DainteeController::class, 'getProcessingJobs'])->name('daintee.processing-jobs');
 
 // Admin Routes
 Route::get('/admin/login', [AdminController::class, 'showLogin'])->name('admin.login');

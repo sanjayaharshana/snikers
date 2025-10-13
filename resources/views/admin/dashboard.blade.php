@@ -2,7 +2,7 @@
 
 @section('title', 'Dashboard')
 @section('page-title', 'Campaign Analytics Dashboard')
-@section('page-subtitle', 'Real-time insights and management for Snickers campaign')
+@section('page-subtitle', 'Real-time insights and management for Daintee campaign')
 
 @section('content')
 <!-- Key Metrics Overview -->
@@ -222,7 +222,7 @@ function systemStatus() {
 
 .token-breakdown h4 {
     margin: 0 0 15px 0;
-    color: #8B4513;
+    color: #800080;
     font-size: 14px;
     font-weight: 600;
 }
@@ -240,7 +240,7 @@ function systemStatus() {
     padding: 8px 12px;
     background: #f8f9fa;
     border-radius: 6px;
-    border-left: 3px solid #8B4513;
+    border-left: 3px solid #800080;
 }
 
 .service-name {
@@ -258,7 +258,7 @@ function systemStatus() {
 .metric-value {
     font-size: 24px;
     font-weight: 700;
-    color: #8B4513;
+    color: #800080;
     line-height: 1.2;
 }
 

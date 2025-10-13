@@ -29,7 +29,7 @@ class AdminController extends Controller
         $credentials = $request->only('email', 'password');
 
         // Simple admin authentication (you can enhance this later)
-        if ($credentials['email'] === 'admin@snickers.com' && $credentials['password'] === 'admin123') {
+        if ($credentials['email'] === 'admin@daintee.com' && $credentials['password'] === 'admin123') {
             session(['admin_logged_in' => true]);
             return redirect()->route('admin.dashboard');
         }

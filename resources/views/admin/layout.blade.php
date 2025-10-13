@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Admin Panel') - Snickers Campaign</title>
+    <title>@yield('title', 'Admin Panel') - Daintee Campaign</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
@@ -76,7 +76,7 @@
 
         .logout-btn {
             background: #FFD700;
-            color: #8B4513;
+            color: #800080;
             border: none;
             padding: 10px 20px;
             border-radius: 5px;
@@ -106,7 +106,7 @@
 
         .page-title {
             font-size: 24px;
-            color: #8B4513;
+            color: #800080;
             margin-bottom: 10px;
         }
 
@@ -204,7 +204,7 @@
         }
 
         .card-header {
-            background: #8B4513;
+            background: #800080;
             color: white;
             padding: 20px;
         }
@@ -235,7 +235,7 @@
         .stat-number {
             font-size: 32px;
             font-weight: bold;
-            color: #8B4513;
+            color: #800080;
             margin-bottom: 5px;
         }
 
@@ -414,8 +414,8 @@
 
         .form-control:focus {
             outline: none;
-            border-color: #8B4513;
-            box-shadow: 0 0 0 2px rgba(139, 69, 19, 0.2);
+            border-color: #800080;
+            box-shadow: 0 0 0 2px rgba(128, 0, 128, 0.2);
         }
 
         .image-gallery {
@@ -445,7 +445,7 @@
         .image-card-title {
             font-weight: bold;
             margin-bottom: 10px;
-            color: #8B4513;
+            color: #800080;
         }
 
         .breadcrumb {
@@ -456,7 +456,7 @@
         }
 
         .breadcrumb a {
-            color: #8B4513;
+            color: #800080;
             text-decoration: none;
         }
 
@@ -1056,7 +1056,7 @@
         <!-- Sidebar -->
         <div class="sidebar" id="sidebar">
             <div class="sidebar-header">
-                <div class="sidebar-logo"><i class="fa-solid fa-candy-cane"></i> SNICKERS</div>
+                <div class="sidebar-logo"><i class="fa-solid fa-candy-cane"></i> DAINTEE</div>
                 <div class="sidebar-subtitle">Admin Panel</div>
             </div>
 
@@ -1074,9 +1074,9 @@
                         <span class="nav-item-icon"><i class="fa-solid fa-tasks"></i></span>
                         <span class="nav-item-text">Queue Jobs</span>
                     </a>
-                    <a href="{{ route('snickers.campaign') }}" target="_blank" class="nav-item">
+                    <a href="{{ route('daintee.campaign') }}" target="_blank" class="nav-item">
                         <span class="nav-item-icon"><i class="fa-solid fa-candy-cane"></i></span>
-                        <span class="nav-item-text">Snickers Campaign</span>
+                        <span class="nav-item-text">Daintee Campaign</span>
                         <span class="nav-item-badge"><i class="fa-solid fa-external-link-alt"></i></span>
                     </a>
                 </div>

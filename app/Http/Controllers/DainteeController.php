@@ -12,11 +12,11 @@ use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
 use App\Services\TokenTrackingService;
 
-class SnickersController extends Controller
+class DainteeController extends Controller
 {
     public function index()
     {
-        return view('snickers.campaign');
+        return view('daintee.campaign');
     }
 
     public function capture(Request $request)
@@ -319,7 +319,7 @@ class SnickersController extends Controller
 
         $fullPath = Storage::disk('public')->path($imagePath);
 
-        // Option 1: Use AILabTools API (primary for Snickers campaign)
+        // Option 1: Use AILabTools API (primary for Daintee campaign)
         if (env('USE_AILABTOOLS_API', true)) {
             return $this->processWithOriginalAPI($fullPath, $emotion);
         }
@@ -723,7 +723,7 @@ class SnickersController extends Controller
 
     /**
      * Generate photo frame with split-screen layout: sad on top, happy on bottom
-     * Following the Snickers promotional design with branding elements
+     * Following the Daintee promotional design with branding elements
      */
     private function generatePhotoFrame($sadImagePath, $happyImagePath)
     {
@@ -763,9 +763,9 @@ class SnickersController extends Controller
             $white = imagecolorallocate($photoFrame, 255, 255, 255);
             imagefill($photoFrame, 0, 0, $white);
 
-            // Add red border
-            $red = imagecolorallocate($photoFrame, 223, 1, 0); // Snickers red
-            imagerectangle($photoFrame, 0, 0, $frameWidth - 1, $frameHeight - 1, $red);
+            // Add purple border (Daintee brand color)
+            $purple = imagecolorallocate($photoFrame, 128, 0, 128); // Daintee purple
+            imagerectangle($photoFrame, 0, 0, $frameWidth - 1, $frameHeight - 1, $purple);
 
             // Copy sad image to the top half
             $sadX = ($frameWidth - $sadWidth) / 2; // Center horizontally
@@ -776,8 +776,8 @@ class SnickersController extends Controller
             $happyY = $sadHeight + 15; // 15px gap from sad image
             imagecopy($photoFrame, $happyImage, $happyX, $happyY, 0, 0, $happyWidth, $happyHeight);
 
-            // Add Snickers branding text
-            $this->addSnickersBranding($photoFrame, $frameWidth, $frameHeight);
+            // Add Daintee branding text
+            $this->addDainteeBranding($photoFrame, $frameWidth, $frameHeight);
 
             // Generate filename and save
             $frameFilename = 'photo_frame.png';
@@ -857,10 +857,10 @@ class SnickersController extends Controller
             // Create the photo frame canvas with white background
             $photoFrame = $manager->create($frameWidth, $frameHeight, '#ffffff');
 
-            // Add red border (Snickers red)
+            // Add purple border (Daintee purple)
             $photoFrame->drawRectangle(0, 0, function ($draw) use ($frameWidth, $frameHeight) {
                 $draw->size($frameWidth - 1, $frameHeight - 1);
-                $draw->border(3, '#DF0100');
+                $draw->border(3, '#800080');
             });
 
             // Copy sad image to the top half
@@ -872,8 +872,8 @@ class SnickersController extends Controller
             $happyY = $sadHeight + 15; // 15px gap from sad image
             $photoFrame->place($happyImage, 'top-left', $happyX, $happyY);
 
-            // Add Snickers branding text
-            $this->addSnickersBrandingIntervention($photoFrame, $frameWidth, $frameHeight);
+            // Add Daintee branding text
+            $this->addDainteeBrandingIntervention($photoFrame, $frameWidth, $frameHeight);
 
             // Generate filename and save
             $frameFilename = 'photo_frame_' . time() . '_' . Str::random(10) . '.png';
@@ -892,26 +892,26 @@ class SnickersController extends Controller
     }
 
     /**
-     * Add Snickers branding elements to the photo frame using Intervention Image
+     * Add Daintee branding elements to the photo frame using Intervention Image
      */
-    private function addSnickersBrandingIntervention($image, $width, $height)
+    private function addDainteeBrandingIntervention($image, $width, $height)
     {
         try {
-            // Add Snickers logo area at the top
+            // Add Daintee logo area at the top
             $logoHeight = 60;
 
-            // Create a red rectangle for the logo background
-            $logoBackground = $image->newImage($width, $logoHeight, '#DF0100');
+            // Create a purple rectangle for the logo background
+            $logoBackground = $image->newImage($width, $logoHeight, '#800080');
             $image->place($logoBackground, 'top-left', 0, 0);
 
-            // Add blue border inside
+            // Add silver border inside
             $image->drawRectangle(2, 2, function ($draw) use ($width, $logoHeight) {
                 $draw->size($width - 3, $logoHeight - 3);
-                $draw->border(2, '#0066CC');
+                $draw->border(2, '#C0C0C0');
             });
 
-            // Add "SNICKERS" text (simplified - using basic text)
-            $image->text('SNICKERS', $width / 2, $logoHeight / 2, function ($font) {
+            // Add "DAINTEE" text (simplified - using basic text)
+            $image->text('DAINTEE', $width / 2, $logoHeight / 2, function ($font) {
                 $font->filename('Arial');
                 $font->size(24);
                 $font->color('#FFFFFF');
@@ -938,16 +938,16 @@ class SnickersController extends Controller
                 $font->align('center');
             });
 
-            // "HUNGRY" in orange
+            // "HUNGRY" in gold
             $image->text("HUNGRY", $width / 2, $sloganY + 30, function ($font) {
                 $font->filename('Arial');
                 $font->size(18);
-                $font->color('#FF6600');
+                $font->color('#FFD700');
                 $font->align('center');
             });
 
         } catch (\Exception $e) {
-            \Log::error('Error adding Snickers branding: ' . $e->getMessage());
+            \Log::error('Error adding Daintee branding: ' . $e->getMessage());
         }
     }
 
@@ -961,7 +961,7 @@ class SnickersController extends Controller
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Snickers Photo Frame</title>
+    <title>Daintee Photo Frame</title>
     <style>
         body {
             margin: 0;
@@ -976,7 +976,7 @@ class SnickersController extends Controller
 
         .photo-frame {
             background: white;
-            border: 8px solid #DF0100;
+            border: 8px solid #800080;
             border-radius: 20px;
             padding: 20px;
             max-width: 600px;
@@ -984,8 +984,8 @@ class SnickersController extends Controller
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
 
-        .snickers-logo {
-            background: #DF0100;
+        .daintee-logo {
+            background: #800080;
             color: white;
             text-align: center;
             padding: 15px;
@@ -993,7 +993,7 @@ class SnickersController extends Controller
             border-radius: 12px 12px 0 0;
             font-size: 24px;
             font-weight: bold;
-            border: 3px solid #0066CC;
+            border: 3px solid #C0C0C0;
         }
 
         .image-container {
@@ -1026,16 +1026,16 @@ class SnickersController extends Controller
         }
 
         .hungry-text {
-            color: #FF6600;
+            color: #FFD700;
             font-size: 20px;
         }
 
-        .snickers-bar {
+        .daintee-bar {
             text-align: center;
             margin-top: 15px;
         }
 
-        .snickers-bar img {
+        .daintee-bar img {
             max-width: 100px;
             height: auto;
         }
@@ -1043,7 +1043,7 @@ class SnickersController extends Controller
 </head>
 <body>
     <div class="photo-frame">
-        <div class="snickers-logo">SNICKERS</div>
+        <div class="daintee-logo">DAINTEE</div>
 
         <div class="image-container">
             <div class="image-section">
@@ -1063,8 +1063,8 @@ class SnickersController extends Controller
             <div class="slogan-line hungry-text">HUNGRY</div>
         </div>
 
-        <div class="snickers-bar">
-            <img src="/07/SNICKERS BAR_1.png" alt="Snickers Bar">
+        <div class="daintee-bar">
+            <img src="/07/DAINTEE_BAR.png" alt="Daintee Bar">
         </div>
     </div>
 </body>
@@ -1072,30 +1072,30 @@ class SnickersController extends Controller
     }
 
     /**
-     * Add Snickers branding elements to the photo frame
+     * Add Daintee branding elements to the photo frame
      */
-    private function addSnickersBranding($image, $width, $height)
+    private function addDainteeBranding($image, $width, $height)
     {
         if (!function_exists('imagecreate')) {
             return;
         }
 
         // Colors
-        $red = imagecolorallocate($image, 223, 1, 0); // Snickers red
-        $blue = imagecolorallocate($image, 0, 102, 204); // Snickers blue
+        $purple = imagecolorallocate($image, 128, 0, 128); // Daintee purple
+        $silver = imagecolorallocate($image, 192, 192, 192); // Daintee silver
         $white = imagecolorallocate($image, 255, 255, 255);
-        $orange = imagecolorallocate($image, 255, 165, 0); // For "HUNGRY" text
+        $gold = imagecolorallocate($image, 255, 215, 0); // For "HUNGRY" text
 
-        // Add Snickers logo area at the top
+        // Add Daintee logo area at the top
         $logoHeight = 60;
-        imagefilledrectangle($image, 0, 0, $width, $logoHeight, $red);
+        imagefilledrectangle($image, 0, 0, $width, $logoHeight, $purple);
 
-        // Add blue border inside
-        imagerectangle($image, 2, 2, $width - 3, $logoHeight - 3, $blue);
+        // Add silver border inside
+        imagerectangle($image, 2, 2, $width - 3, $logoHeight - 3, $silver);
 
-        // Add "SNICKERS" text (simplified - using built-in font)
+        // Add "DAINTEE" text (simplified - using built-in font)
         $font = 5; // Built-in font
-        $text = "SNICKERS";
+        $text = "DAINTEE";
         $textWidth = imagefontwidth($font) * strlen($text);
         $textX = ($width - $textWidth) / 2;
         $textY = ($logoHeight - imagefontheight($font)) / 2;
@@ -1117,11 +1117,11 @@ class SnickersController extends Controller
         $slogan2X = ($width - $slogan2Width) / 2;
         imagestring($image, $sloganFont, $slogan2X, $sloganY + 15, $slogan2, $white);
 
-        // "HUNGRY" in orange
+        // "HUNGRY" in gold
         $hungryText = "HUNGRY";
         $hungryWidth = imagefontwidth($sloganFont) * strlen($hungryText);
         $hungryX = ($width - $hungryWidth) / 2;
-        imagestring($image, $sloganFont, $hungryX, $sloganY + 30, $hungryText, $orange);
+        imagestring($image, $sloganFont, $hungryX, $sloganY + 30, $hungryText, $gold);
     }
 
     /**
@@ -1267,6 +1267,9 @@ class SnickersController extends Controller
             $happyImage->resize($imageAreaWidth, $imageAreaHeight);
             $baseFrame->place($happyImage, 'top-left', $paddingX, $paddingYTop + $imageAreaHeight + $gapY);
 
+            // Add Daintee branding text
+            $this->addDainteeBrandingIntervention($baseFrame, $frameWidth, $frameHeight);
+
             // Generate filename and save
             $frameFilename = 'framed_image_' . time() . '_' . Str::random(10) . '.png';
             $framePath = 'generated/' . $frameFilename;
@@ -1284,29 +1287,29 @@ class SnickersController extends Controller
     }
 
     /**
-     * Add Snickers header to framed image using GD
+     * Add Daintee header to framed image using GD
      */
-    private function addSnickersHeader($image, $width)
+    private function addDainteeHeader($image, $width)
     {
         if (!function_exists('imagecreate')) {
             return;
         }
 
         // Colors
-        $red = imagecolorallocate($image, 223, 1, 0); // Snickers red
-        $blue = imagecolorallocate($image, 0, 102, 204); // Snickers blue
+        $purple = imagecolorallocate($image, 128, 0, 128); // Daintee purple
+        $silver = imagecolorallocate($image, 192, 192, 192); // Daintee silver
         $white = imagecolorallocate($image, 255, 255, 255);
 
-        // Add Snickers logo area at the top
+        // Add Daintee logo area at the top
         $logoHeight = 60;
-        imagefilledrectangle($image, 0, 0, $width, $logoHeight, $red);
+        imagefilledrectangle($image, 0, 0, $width, $logoHeight, $purple);
 
-        // Add blue border inside
-        imagerectangle($image, 2, 2, $width - 3, $logoHeight - 3, $blue);
+        // Add silver border inside
+        imagerectangle($image, 2, 2, $width - 3, $logoHeight - 3, $silver);
 
-        // Add "SNICKERS" text
+        // Add "DAINTEE" text
         $font = 5; // Built-in font
-        $text = "SNICKERS";
+        $text = "DAINTEE";
         $textWidth = imagefontwidth($font) * strlen($text);
         $textX = ($width - $textWidth) / 2;
         $textY = ($logoHeight - imagefontheight($font)) / 2;
@@ -1323,7 +1326,7 @@ class SnickersController extends Controller
         }
 
         $black = imagecolorallocate($image, 0, 0, 0);
-        $orange = imagecolorallocate($image, 255, 165, 0);
+        $gold = imagecolorallocate($image, 255, 215, 0);
         $font = 3;
 
         // Add "SAD" label
@@ -1336,20 +1339,20 @@ class SnickersController extends Controller
         $happyLabel = "HAPPY";
         $happyLabelWidth = imagefontwidth($font) * strlen($happyLabel);
         $happyLabelX = $happyX + ($happyWidth - $happyLabelWidth) / 2;
-        imagestring($image, $font, $happyLabelX, $happyY - 20, $happyLabel, $orange);
+        imagestring($image, $font, $happyLabelX, $happyY - 20, $happyLabel, $gold);
     }
 
     /**
-     * Add Snickers slogan using GD
+     * Add Daintee slogan using GD
      */
-    private function addSnickersSlogan($image, $width, $height)
+    private function addDainteeSlogan($image, $width, $height)
     {
         if (!function_exists('imagecreate')) {
             return;
         }
 
         $white = imagecolorallocate($image, 255, 255, 255);
-        $orange = imagecolorallocate($image, 255, 165, 0);
+        $gold = imagecolorallocate($image, 255, 215, 0);
         $font = 3;
 
         $sloganY = $height - 40;
@@ -1366,34 +1369,34 @@ class SnickersController extends Controller
         $slogan2X = ($width - $slogan2Width) / 2;
         imagestring($image, $font, $slogan2X, $sloganY + 15, $slogan2, $white);
 
-        // "HUNGRY" in orange
+        // "HUNGRY" in gold
         $hungryText = "HUNGRY";
         $hungryWidth = imagefontwidth($font) * strlen($hungryText);
         $hungryX = ($width - $hungryWidth) / 2;
-        imagestring($image, $font, $hungryX, $sloganY + 30, $hungryText, $orange);
+        imagestring($image, $font, $hungryX, $sloganY + 30, $hungryText, $gold);
     }
 
     /**
-     * Add Snickers header to framed image using Intervention Image
+     * Add Daintee header to framed image using Intervention Image
      */
-    private function addSnickersHeaderIntervention($image, $width)
+    private function addDainteeHeaderIntervention($image, $width)
     {
         try {
-            // Add Snickers logo area at the top
+            // Add Daintee logo area at the top
             $logoHeight = 60;
 
-            // Create a red rectangle for the logo background
-            $logoBackground = $image->newImage($width, $logoHeight, '#DF0100');
+            // Create a purple rectangle for the logo background
+            $logoBackground = $image->newImage($width, $logoHeight, '#800080');
             $image->place($logoBackground, 'top-left', 0, 0);
 
-            // Add blue border inside
+            // Add silver border inside
             $image->drawRectangle(2, 2, function ($draw) use ($width, $logoHeight) {
                 $draw->size($width - 3, $logoHeight - 3);
-                $draw->border(2, '#0066CC');
+                $draw->border(2, '#C0C0C0');
             });
 
-            // Add "SNICKERS" text
-            $image->text('SNICKERS', $width / 2, $logoHeight / 2, function ($font) {
+            // Add "DAINTEE" text
+            $image->text('DAINTEE', $width / 2, $logoHeight / 2, function ($font) {
                 $font->filename('Arial');
                 $font->size(24);
                 $font->color('#FFFFFF');
@@ -1402,7 +1405,7 @@ class SnickersController extends Controller
             });
 
         } catch (\Exception $e) {
-            \Log::error('Error adding Snickers header: ' . $e->getMessage());
+            \Log::error('Error adding Daintee header: ' . $e->getMessage());
         }
     }
 
@@ -1426,7 +1429,7 @@ class SnickersController extends Controller
             $image->text('HAPPY', $happyLabelX, $happyY - 20, function ($font) {
                 $font->filename('Arial');
                 $font->size(16);
-                $font->color('#FF6600');
+                $font->color('#FFD700');
                 $font->align('center');
             });
 
@@ -1436,9 +1439,9 @@ class SnickersController extends Controller
     }
 
     /**
-     * Add Snickers slogan using Intervention Image
+     * Add Daintee slogan using Intervention Image
      */
-    private function addSnickersSloganIntervention($image, $width, $height)
+    private function addDainteeSloganIntervention($image, $width, $height)
     {
         try {
             $sloganY = $height - 40;
@@ -1459,16 +1462,16 @@ class SnickersController extends Controller
                 $font->align('center');
             });
 
-            // "HUNGRY" in orange
+            // "HUNGRY" in gold
             $image->text("HUNGRY", $width / 2, $sloganY + 30, function ($font) {
                 $font->filename('Arial');
                 $font->size(18);
-                $font->color('#FF6600');
+                $font->color('#FFD700');
                 $font->align('center');
             });
 
         } catch (\Exception $e) {
-            \Log::error('Error adding Snickers slogan: ' . $e->getMessage());
+            \Log::error('Error adding Daintee slogan: ' . $e->getMessage());
         }
     }
 
@@ -1513,7 +1516,7 @@ class SnickersController extends Controller
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Snickers Framed Image</title>
+    <title>Daintee Framed Image</title>
     <style>
         * {
             margin: 0;
@@ -1533,7 +1536,7 @@ class SnickersController extends Controller
 
         .framed-container {
             background: white;
-            border: 12px solid #DF0100;
+            border: 12px solid #800080;
             border-radius: 25px;
             padding: 0;
             max-width: 700px;
@@ -1543,16 +1546,16 @@ class SnickersController extends Controller
             overflow: hidden;
         }
 
-        .snickers-header {
-            background: linear-gradient(45deg, #DF0100, #FF4444);
+        .daintee-header {
+            background: linear-gradient(45deg, #800080, #9932CC);
             color: white;
             text-align: center;
             padding: 20px;
             position: relative;
-            border-bottom: 4px solid #0066CC;
+            border-bottom: 4px solid #C0C0C0;
         }
 
-        .snickers-header::before {
+        .daintee-header::before {
             content: "";
             position: absolute;
             top: 0;
@@ -1563,7 +1566,7 @@ class SnickersController extends Controller
             pointer-events: none;
         }
 
-        .snickers-logo {
+        .daintee-logo {
             font-size: 32px;
             font-weight: 900;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
@@ -1606,7 +1609,7 @@ class SnickersController extends Controller
         }
 
         .happy-label {
-            color: #FF6600;
+            color: #FFD700;
         }
 
         .image-card img {
@@ -1632,7 +1635,7 @@ class SnickersController extends Controller
             left: 0;
             right: 0;
             height: 3px;
-            background: linear-gradient(90deg, #DF0100, #FF6600, #DF0100);
+            background: linear-gradient(90deg, #800080, #FFD700, #800080);
         }
 
         .slogan-text {
@@ -1643,18 +1646,18 @@ class SnickersController extends Controller
         }
 
         .hungry-highlight {
-            color: #FF6600;
+            color: #FFD700;
             font-size: 24px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
         }
 
-        .snickers-product {
+        .daintee-product {
             text-align: center;
             padding: 20px;
             background: #f0f0f0;
         }
 
-        .snickers-product img {
+        .daintee-product img {
             max-width: 120px;
             height: auto;
             filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3));
@@ -1667,7 +1670,7 @@ class SnickersController extends Controller
                 padding: 20px;
             }
 
-            .snickers-logo {
+            .daintee-logo {
                 font-size: 24px;
             }
 
@@ -1683,8 +1686,8 @@ class SnickersController extends Controller
 </head>
 <body>
     <div class="framed-container">
-        <div class="snickers-header">
-            <div class="snickers-logo">SNICKERS</div>
+        <div class="daintee-header">
+            <div class="daintee-logo">DAINTEE</div>
         </div>
 
         <div class="images-grid">
@@ -1707,8 +1710,8 @@ class SnickersController extends Controller
             </div>
         </div>
 
-        <div class="snickers-product">
-            <img src="/07/SNICKERS BAR_1.png" alt="Snickers Bar">
+        <div class="daintee-product">
+            <img src="/07/DAINTEE_BAR.png" alt="Daintee Bar">
         </div>
     </div>
 </body>
@@ -1861,10 +1864,10 @@ class SnickersController extends Controller
             $happyWidth = imagesx($happyImage);
             $happyHeight = imagesy($happyImage);
 
-            // Load the Snickers branded frame template as base canvas
-            $framePath = public_path('sniker_frame.png');
+            // Load the Daintee branded frame template as base canvas
+            $framePath = public_path('daintee_frame.png');
             if (!file_exists($framePath)) {
-                \Log::error('Snicker frame template not found at: ' . $framePath);
+                \Log::error('Daintee frame template not found at: ' . $framePath);
                 imagedestroy($sadImage);
                 imagedestroy($happyImage);
                 return null;
@@ -1872,7 +1875,7 @@ class SnickersController extends Controller
 
             $frameImage = imagecreatefrompng($framePath);
             if (!$frameImage) {
-                \Log::error('Failed to load Snicker frame template');
+                \Log::error('Failed to load Daintee frame template');
                 imagedestroy($sadImage);
                 imagedestroy($happyImage);
                 return null;
@@ -1901,7 +1904,7 @@ class SnickersController extends Controller
             // Center images horizontally in template areas
             $imageX = ($canvasWidth - $templateImageWidth) / 2;
 
-            // Create final canvas from Snicker frame template
+            // Create final canvas from Daintee frame template
             $canvas = imagecreatetruecolor($canvasWidth, $canvasHeight);
 
             // Place sad image in template sad area (behind frame)
@@ -1910,7 +1913,7 @@ class SnickersController extends Controller
             // Place happy image in template happy area (behind frame)
             imagecopy($canvas, $happyResized, $imageX, $happyAreaY, 0, 0, $templateImageWidth, $templateImageHeight);
 
-            // Overlay Snickers frame template on top (highest z-index)
+            // Overlay Daintee frame template on top (highest z-index)
             imagealphablending($canvas, true);
             imagecopy($canvas, $frameImage, 0, 0, 0, 0, $canvasWidth, $canvasHeight);
 
@@ -1966,10 +1969,10 @@ class SnickersController extends Controller
             $happyWidth = $happyImage->width();
             $happyHeight = $happyImage->height();
 
-            // Load the Snickers branded frame template as base canvas
-            $framePath = public_path('sniker_frame.png');
+            // Load the Daintee branded frame template as base canvas
+            $framePath = public_path('daintee_frame.png');
             if (!file_exists($framePath)) {
-                \Log::error('Snicker frame template not found for Intervention Image at: ' . $framePath);
+                \Log::error('Daintee frame template not found for Intervention Image at: ' . $framePath);
                 return null;
             }
 
@@ -2003,7 +2006,7 @@ class SnickersController extends Controller
             // Place happy image in template happy area (behind frame)
             $canvas->place($happyResized, 'top-left', $imageX, $happyAreaY);
 
-            // Overlay Snickers frame template on top (highest z-index)
+            // Overlay Daintee frame template on top (highest z-index)
             $canvas->place($frameTemplate, 'top-left', 0, 0);
 
             // Generate filename and save as JPG
