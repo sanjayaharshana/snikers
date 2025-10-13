@@ -6,7 +6,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\PreviewController;
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('snickers.campaign');
 });
 
 // Snickers Campaign Routes

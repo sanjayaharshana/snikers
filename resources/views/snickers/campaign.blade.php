@@ -33,6 +33,61 @@
             aspect-ratio: 9/16;
             max-width: calc(100vh * 9 / 16);
             margin: 0 auto;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .container:hover {
+            transform: scale(1.02);
+        }
+
+        .container.fullscreen {
+            width: 100vw;
+            height: 100vh;
+            max-width: 100vw;
+            aspect-ratio: unset;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 9999;
+            background: #000;
+            transform: scale(1);
+        }
+
+        .fullscreen-indicator {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            color: #000;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .container.fullscreen .fullscreen-indicator {
+            opacity: 1;
+        }
+
+        /* Mobile fullscreen support */
+        @media (max-width: 768px) {
+            .fullscreen-indicator {
+                top: 10px;
+                right: 10px;
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+        }
+
+        /* Touch device support */
+        @media (hover: none) and (pointer: coarse) {
+            .container:hover {
+                transform: none;
+            }
         }
 
         @media (orientation: landscape) {
@@ -694,11 +749,13 @@
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="container" ondblclick="toggleFullscreen()">
+        <div class="fullscreen-indicator">Double-click to exit fullscreen</div>
         <!-- Step 1: Ready Screen -->
         <div class="step active" id="step1">
             <img src="/01/SNICKERS LOGO.png" alt="Snickers Logo" class="snickers-logo">
             <img src="/01/Ready.png" alt="Ready" class="asset-image">
+            <img src="/01/001_Text_1.png" alt="Ready" class="asset-image">
             <img src="/01/SNICKERS BAR.png" alt="Snickers Bar" class="snickers-bar-asset" onclick="nextStep()">
         </div>
 
@@ -713,12 +770,13 @@
         <!-- Step 3: First Selfie -->
         <div class="step" id="step3">
             <img src="/03/SNICKERS LOGO.png" alt="Snickers Logo" class="snickers-logo">
-            <img src="/03/Take a Selfie.png" alt="Take a Selfie" class="asset-image">
+
             <div class="camera-container">
                 <video id="video" autoplay muted></video>
                 <canvas id="canvas"></canvas>
                 <img src="/03/Selfie_Frame.png" alt="Selfie Frame" class="selfie-frame-overlay">
             </div>
+            <img src="/03/Take a Selfie.png" alt="Take a Selfie" class="asset-image">
             <img src="/03/BT_Snap.png" alt="Snap" class="btn-asset" onclick="captureSelfie()" style="cursor: pointer;">
         </div>
 
@@ -760,12 +818,11 @@
                     <source src="/05/SNK SATISFYING VIDEO IGS.mp4" type="video/mp4">
                 </video>
             </div>
-            
+
             <!-- Processing Status Overlay -->
             <div id="processingStatusOverlay" style="position: absolute; top: 20px; left: 20px; right: 20px; background: rgba(0,0,0,0.7); color: #FFD700; padding: 15px; border-radius: 10px; text-align: center; font-size: 16px; font-weight: bold; z-index: 1000;">
                 <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
                     <div class="spinner" style="width: 20px; height: 20px; border-width: 2px;"></div>
-                    <span>Processing your sad emotion...</span>
                 </div>
             </div>
         </div>
@@ -970,19 +1027,19 @@
                 if (data.success) {
                     // Store the generated image ID for later use
                     window.generatedImageId = data.generated_image_id;
-                    
+
                     // Navigate to video step (step 5) immediately after job is queued
                     setTimeout(() => {
                         // Hide current step
                         document.getElementById('step4').classList.add('fade-out');
-                        
+
                         setTimeout(() => {
                             document.getElementById('step4').classList.remove('active', 'fade-out');
-                            
+
                             // Show video step
                             currentStep = 5;
                             document.getElementById('step5').classList.add('active');
-                            
+
                             // Start video playback and polling
                             playVideo();
                         }, 500);
@@ -1104,7 +1161,7 @@
                 if (data.success) {
                     // Store the happy image result
                     secondSelfieHappyResult = data.happy_image_url;
-                    
+
                     // Move to next step (final emotion processing)
                     nextStep();
                 } else {
@@ -1132,17 +1189,17 @@
             video.addEventListener('ended', function() {
                 // Stop polling when video ends
                 stopPolling();
-                
+
                 setTimeout(() => {
                     // Navigate to step 6 (second selfie)
                     document.getElementById('step5').classList.add('fade-out');
-                    
+
                     setTimeout(() => {
                         document.getElementById('step5').classList.remove('active', 'fade-out');
-                        
+
                         currentStep = 6;
                         document.getElementById('step6').classList.add('active');
-                        
+
                         // Start second camera
                         startSecondCamera();
                     }, 500);
@@ -1153,16 +1210,16 @@
             video.addEventListener('click', function() {
                 // Stop polling when user clicks
                 stopPolling();
-                
+
                 // Navigate to step 6 (second selfie)
                 document.getElementById('step5').classList.add('fade-out');
-                
+
                 setTimeout(() => {
                     document.getElementById('step5').classList.remove('active', 'fade-out');
-                    
+
                     currentStep = 6;
                     document.getElementById('step6').classList.add('active');
-                    
+
                     // Start second camera
                     startSecondCamera();
                 }, 500);
@@ -1178,13 +1235,10 @@
             }
 
             console.log('Starting polling for sad image processing...');
-            
+
             // Show processing status overlay
-            const overlay = document.getElementById('processingStatusOverlay');
-            if (overlay) {
-                overlay.style.display = 'block';
-            }
-            
+
+
             pollingInterval = setInterval(() => {
                 checkSadImageStatus();
             }, 3000); // Poll every 3 seconds
@@ -1195,7 +1249,7 @@
                 clearInterval(pollingInterval);
                 pollingInterval = null;
                 console.log('Stopped polling for sad image processing');
-                
+
                 // Hide processing status overlay
                 const overlay = document.getElementById('processingStatusOverlay');
                 if (overlay) {
@@ -1227,27 +1281,27 @@
                 if (data.success) {
                     // Update status message based on job status
                     updateProcessingStatus(data.job_status);
-                    
+
                     // Check if sad image processing is completed
                     if (data.sad_image_url && data.job_status === 'completed') {
                         console.log('Sad image processing completed! Navigating to results...');
-                        
+
                         // Stop polling
                         stopPolling();
-                        
+
                         // Store the sad image result
                         window.sadImageResult = data.sad_image_url;
-                        
+
                         // Navigate to results page (step 4) with the processed image
                         setTimeout(() => {
                             navigateToResultsWithSadImage(data);
                         }, 1000);
                     } else if (data.job_status === 'failed') {
                         console.log('Sad image processing failed, using fallback');
-                        
+
                         // Stop polling
                         stopPolling();
-                        
+
                         // Navigate to results with fallback
                         setTimeout(() => {
                             navigateToResultsWithFallback();
@@ -1291,24 +1345,24 @@
         function navigateToResultsWithSadImage(data) {
             // Hide video step
             document.getElementById('step5').classList.add('fade-out');
-            
+
             setTimeout(() => {
                 document.getElementById('step5').classList.remove('active', 'fade-out');
-                
+
                 // Show results step (step 4)
                 currentStep = 4;
                 document.getElementById('step4').classList.add('active');
-                
+
                 // Display the processed sad image
                 displayFinalResults({
                     sad_image_url: data.sad_image_url,
                     original_image_url: data.original_image_url
                 });
-                
+
                 // Show the results container and OK button
                 document.getElementById('finalResultsContainer').style.display = 'block';
                 document.getElementById('finalOkBtn').style.display = 'block';
-                
+
                 console.log('Navigated to results with processed sad image');
             }, 500);
         }
@@ -1316,21 +1370,21 @@
         function navigateToResultsWithFallback() {
             // Hide video step
             document.getElementById('step5').classList.add('fade-out');
-            
+
             setTimeout(() => {
                 document.getElementById('step5').classList.remove('active', 'fade-out');
-                
+
                 // Show results step (step 4)
                 currentStep = 4;
                 document.getElementById('step4').classList.add('active');
-                
+
                 // Display fallback results
                 displayFallbackResults();
-                
+
                 // Show the results container and OK button
                 document.getElementById('finalResultsContainer').style.display = 'block';
                 document.getElementById('finalOkBtn').style.display = 'block';
-                
+
                 console.log('Navigated to results with fallback image');
             }, 500);
         }
@@ -1563,6 +1617,66 @@
                 if (snickersBar) {
                     snickersBar.style.animation = 'shake 2s infinite';
                 }
+            }, 1000);
+        });
+
+        // Fullscreen functionality
+        function toggleFullscreen() {
+            const container = document.querySelector('.container');
+            const indicator = document.querySelector('.fullscreen-indicator');
+
+            if (container.classList.contains('fullscreen')) {
+                // Exit fullscreen
+                container.classList.remove('fullscreen');
+                indicator.textContent = 'Double-click to enter fullscreen';
+
+                // Reset body overflow
+                document.body.style.overflow = 'hidden';
+            } else {
+                // Enter fullscreen
+                container.classList.add('fullscreen');
+                indicator.textContent = 'Double-click to exit fullscreen';
+
+                // Hide body overflow to prevent scrolling
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        // Add keyboard support for fullscreen (ESC key)
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                const container = document.querySelector('.container');
+                if (container.classList.contains('fullscreen')) {
+                    toggleFullscreen();
+                }
+            }
+        });
+
+        // Prevent context menu on double-click
+        document.addEventListener('contextmenu', function(event) {
+            event.preventDefault();
+        });
+
+        // Touch support for mobile devices
+        let touchStartTime = 0;
+        let touchCount = 0;
+
+        document.addEventListener('touchstart', function(event) {
+            touchStartTime = Date.now();
+            touchCount++;
+
+            // Double tap detection for mobile
+            if (touchCount === 2) {
+                const timeDiff = Date.now() - touchStartTime;
+                if (timeDiff < 500) { // 500ms threshold for double tap
+                    toggleFullscreen();
+                    touchCount = 0;
+                }
+            }
+
+            // Reset touch count after 1 second
+            setTimeout(() => {
+                touchCount = 0;
             }, 1000);
         });
     </script>
