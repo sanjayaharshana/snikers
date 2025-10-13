@@ -10,6 +10,12 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
         }
 
         body {
@@ -35,6 +41,8 @@
             margin: 0 auto;
             cursor: pointer;
             transition: all 0.3s ease;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
         /* Remove hover scaling to prevent size changes */
@@ -141,6 +149,8 @@
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
         #step1 {
@@ -351,11 +361,21 @@
             height: 6vh;
             font-size: 2.2vh;
             padding: 1.2vh;
-            border: none;
+            border: 3px solid transparent;
             border-radius: 15px;
             text-align: center;
             margin: 1.6vh 0;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: border-color 0.3s ease;
+        }
+
+        .phone-input.error {
+            border-color: #ff0000;
+            background-color: rgba(255, 0, 0, 0.1);
+        }
+
+        .phone-input.error::placeholder {
+            color: #ff0000;
         }
 
         .btn {
@@ -949,9 +969,23 @@
             console.log('nextStep called, current step:', currentStep);
 
             if (currentStep === 2) {
-                phoneNumber = document.getElementById('phoneInput').value;
+                const phoneInput = document.getElementById('phoneInput');
+                phoneNumber = phoneInput.value;
+                
                 if (!phoneNumber) {
-                    alert('Please enter your phone number');
+                    // Remove any existing error state
+                    phoneInput.classList.remove('error');
+                    
+                    // Add error styling
+                    phoneInput.classList.add('error');
+                    phoneInput.placeholder = 'Please enter your phone number';
+                    
+                    // Clear error after user starts typing
+                    phoneInput.addEventListener('input', function() {
+                        this.classList.remove('error');
+                        this.placeholder = '+1234567890';
+                    }, { once: true });
+                    
                     return;
                 }
             }
