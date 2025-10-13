@@ -37,8 +37,9 @@
             transition: all 0.3s ease;
         }
 
+        /* Remove hover scaling to prevent size changes */
         .container:hover {
-            transform: scale(1.02);
+            transform: none;
         }
 
         .container.fullscreen {
@@ -71,6 +72,33 @@
 
         .container.fullscreen .fullscreen-indicator {
             opacity: 1;
+        }
+
+        .fullscreen-button {
+            position: absolute;
+            top: 20px;
+            right: 20px; /* move to corner */
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1001;
+            transition: transform 0.2s ease, background 0.2s ease;
+        }
+
+        .fullscreen-button:hover {
+            transform: scale(1.05);
+            background: rgba(0, 0, 0, 0.75);
+        }
+
+        .fullscreen-button svg {
+            width: 22px;
+            height: 22px;
+            fill: #FFD700;
         }
 
         /* Mobile fullscreen support */
@@ -175,49 +203,41 @@
         }
 
         .snickers-logo {
-            width: 60%;
-            max-width: 300px;
+            width: 22vh; /* scale with screen height */
             height: auto;
-            margin-bottom: 20px;
+            margin-bottom: 2vh;
             cursor: pointer;
-            transition: transform 0.3s ease;
+            transition: none;
         }
 
-        .snickers-logo:hover {
-            transform: scale(1.05);
-        }
+        .snickers-logo:hover { /* keep size constant */ }
 
         .asset-image {
-            max-width: 50%;
+            width: 28vh;
             height: auto;
-            margin: 10px 0;
+            margin: 1.2vh 0;
         }
 
         .snickers-bar-asset {
-            width: 70%;
-            max-width: 400px;
+            width: 34vh;
             height: auto;
-            margin: 20px 0;
+            margin: 2vh 0;
             cursor: pointer;
-            transition: transform 0.3s ease;
+            transition: none;
             animation: shake 2s infinite;
         }
 
-        .snickers-bar-asset:hover {
-            transform: scale(1.05);
-        }
+        .snickers-bar-asset:hover { /* keep size constant */ }
 
         .btn-asset {
-            width: 200px;
+            width: 12vh;
             height: auto;
-            margin: 20px 0;
+            margin: 2vh 0;
             cursor: pointer;
-            transition: transform 0.3s ease;
+            transition: none;
         }
 
-        .btn-asset:hover {
-            transform: scale(1.05);
-        }
+        .btn-asset:hover { /* keep size constant */ }
 
         .selfie-frame-overlay {
             position: absolute;
@@ -277,7 +297,7 @@
         }
 
         .title {
-            font-size: 48px;
+            font-size: 4.6vh;
             color: #FFD700;
             margin-bottom: 30px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
@@ -285,34 +305,31 @@
         }
 
         .subtitle {
-            font-size: 24px;
+            font-size: 2.4vh;
             color: white;
             margin-bottom: 40px;
         }
 
+        /* unify button sizing to viewport */
         .btn-asset {
-            width: 50%;
-            max-width: 200px;
+            width: 12vh;
             height: auto;
-            margin: 15px 0;
+            margin: 1.6vh 0;
             cursor: pointer;
-            transition: transform 0.3s ease;
+            transition: none;
         }
 
-        .btn-asset:hover {
-            transform: scale(1.05);
-        }
+        .btn-asset:hover { }
 
         .phone-input {
-            width: 80%;
-            max-width: 300px;
-            height: 50px;
-            font-size: 20px;
-            padding: 12px;
+            width: 70%;
+            height: 6vh;
+            font-size: 2.2vh;
+            padding: 1.2vh;
             border: none;
             border-radius: 15px;
             text-align: center;
-            margin: 15px 0;
+            margin: 1.6vh 0;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
 
@@ -320,8 +337,8 @@
             background: #FFD700;
             color: #8B4513;
             border: none;
-            padding: 20px 40px;
-            font-size: 24px;
+            padding: 2vh 4vh;
+            font-size: 2.4vh;
             font-weight: bold;
             border-radius: 15px;
             cursor: pointer;
@@ -341,13 +358,11 @@
 
         .camera-container {
             width: 32vh;
-            max-width: 356px;
             height: 32.1vh;
-            max-height: 409px;
             border: solid #df0100;
             border-radius: 20px;
             overflow: hidden;
-            margin: 15px 0;
+            margin: 1.5vh 0;
             position: relative;
             background: #000;
             border-radius: 55px 0px 64px 0px;
@@ -375,7 +390,7 @@
         }
 
         .hungry-text {
-            font-size: 36px;
+            font-size: 3.6vh;
             color: #FFD700;
             margin-bottom: 20px;
             animation: pulse 1.5s infinite;
@@ -387,7 +402,7 @@
         }
 
         .hungry-subtitle {
-            font-size: 20px;
+            font-size: 2vh;
             color: white;
             margin-bottom: 30px;
         }
@@ -414,11 +429,11 @@
         }
 
         .emotion-btn {
-            width: 150px;
-            height: 150px;
+            width: 14vh;
+            height: 14vh;
             border-radius: 50%;
             border: none;
-            font-size: 24px;
+            font-size: 2.2vh;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -436,13 +451,13 @@
         }
 
         .emotion-btn:hover {
-            transform: scale(1.1);
+            transform: none;
             box-shadow: 0 8px 25px rgba(0,0,0,0.4);
         }
 
         .result-image {
-            width: 300px;
-            height: 300px;
+            width: 28vh;
+            height: 28vh;
             border-radius: 20px;
             margin: 20px 0;
             box-shadow: 0 8px 25px rgba(0,0,0,0.3);
@@ -454,7 +469,7 @@
             color: #8B4513;
             padding: 20px;
             border-radius: 15px;
-            font-size: 20px;
+            font-size: 2vh;
             font-weight: bold;
             margin: 20px 0;
             box-shadow: 0 6px 20px rgba(0,0,0,0.3);
@@ -471,8 +486,8 @@
             border: 4px solid #f3f3f3;
             border-top: 4px solid #FFD700;
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
+            width: 4vh;
+            height: 4vh;
             animation: spin 1s linear infinite;
             margin: 0 auto 20px;
         }
@@ -495,14 +510,13 @@
         }
 
         .emotion-container {
-            width: 80%;
-            max-width: 350px;
-            height: 490px;
+            width: 40vh;
+            height: 49vh;
             max-height: 100%;
             border: 5px solid white;
             border-radius: 20px;
             overflow: hidden;
-            margin: 15px 0;
+            margin: 1.5vh 0;
             background: #f0f0f0;
             position: relative;
         }
@@ -527,7 +541,7 @@
             top: 10px;
             left: 50%;
             transform: translateX(-50%);
-            font-size: 18px;
+            font-size: 1.8vh;
             font-weight: bold;
             color: white;
             z-index: 10;
@@ -599,8 +613,7 @@
         }
 
         .hungry-result-container {
-            width: 80%;
-            max-width: 350px;
+            width: 40vh;
             margin: 20px 0;
             text-align: center;
         }
@@ -609,8 +622,8 @@
         }
 
         .hungry-result-image img {
-            width: 250px;
-            height: 250px;
+            width: 25vh;
+            height: 25vh;
             border-radius: 20px;
             box-shadow: 0 8px 25px rgba(0,0,0,0.3);
             border: 5px solid #FFD700;
@@ -619,9 +632,8 @@
 
         /* Emotion Processing UI Styles */
         .emotion-processing-container {
-            width: 80%;
-            max-width: 400px;
-            height: 500px;
+            width: 42vh;
+            height: 50vh;
             margin: 20px 0;
             position: relative;
         }
@@ -688,7 +700,7 @@
 
         .emotion-text-line {
             color: white;
-            font-size: 18px;
+            font-size: 1.8vh;
             font-weight: bold;
             text-transform: uppercase;
             margin-bottom: 5px;
@@ -697,7 +709,7 @@
 
         .emotion-text-hungry {
             color: #FFD700;
-            font-size: 28px;
+            font-size: 2.8vh;
             font-weight: bold;
             text-transform: uppercase;
             margin-bottom: 5px;
@@ -707,7 +719,7 @@
 
         .emotion-text-grab {
             color: white;
-            font-size: 18px;
+            font-size: 1.8vh;
             font-weight: bold;
             text-transform: uppercase;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
@@ -720,7 +732,7 @@
         }
 
         .emotion-snickers-bar {
-            width: 120px;
+            width: 12vh;
             height: auto;
             filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
             animation: float 2s ease-in-out infinite;
@@ -751,6 +763,12 @@
 <body>
     <div class="container" ondblclick="toggleFullscreen()">
         <div class="fullscreen-indicator">Double-click to exit fullscreen</div>
+        <div class="fullscreen-button" onclick="enterBrowserFullscreen()" title="Enter fullscreen">
+            <!-- Corner arrows icon -->
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M7 3H3v4h2V5h2V3zm12 0h-4v2h2v2h2V3zM5 17H3v4h4v-2H5v-2zm16 0h-2v2h-2v2h4v-4z"/>
+            </svg>
+        </div>
         <!-- Step 1: Ready Screen -->
         <div class="step active" id="step1">
             <img src="/01/SNICKERS LOGO.png" alt="Snickers Logo" class="snickers-logo">
@@ -1608,20 +1626,55 @@
 
             if (container.classList.contains('fullscreen')) {
                 // Exit fullscreen
-                container.classList.remove('fullscreen');
-                indicator.textContent = 'Double-click to enter fullscreen';
-
-                // Reset body overflow
-                document.body.style.overflow = 'hidden';
+                exitBrowserFullscreen();
             } else {
                 // Enter fullscreen
-                container.classList.add('fullscreen');
-                indicator.textContent = 'Double-click to exit fullscreen';
-
-                // Hide body overflow to prevent scrolling
-                document.body.style.overflow = 'hidden';
+                enterBrowserFullscreen();
             }
         }
+
+        function enterBrowserFullscreen() {
+            const container = document.querySelector('.container');
+            const indicator = document.querySelector('.fullscreen-indicator');
+
+            const el = container;
+            const request = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen || el.mozRequestFullScreen;
+            if (request) {
+                request.call(el).catch(() => {});
+            }
+
+            container.classList.add('fullscreen');
+            if (indicator) indicator.textContent = 'Double-click to exit fullscreen';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function exitBrowserFullscreen() {
+            const container = document.querySelector('.container');
+            const indicator = document.querySelector('.fullscreen-indicator');
+
+            const exit = document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen || document.mozCancelFullScreen;
+            if (exit && document.fullscreenElement) {
+                exit.call(document).catch(() => {});
+            }
+
+            container.classList.remove('fullscreen');
+            if (indicator) indicator.textContent = 'Double-click to enter fullscreen';
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Keep UI in sync if user exits fullscreen via Esc or system controls
+        document.addEventListener('fullscreenchange', () => {
+            const container = document.querySelector('.container');
+            const indicator = document.querySelector('.fullscreen-indicator');
+            if (!document.fullscreenElement) {
+                container.classList.remove('fullscreen');
+                if (indicator) indicator.textContent = 'Double-click to enter fullscreen';
+            } else {
+                container.classList.add('fullscreen');
+                if (indicator) indicator.textContent = 'Double-click to exit fullscreen';
+            }
+            document.body.style.overflow = 'hidden';
+        });
 
         // Add keyboard support for fullscreen (ESC key)
         document.addEventListener('keydown', function(event) {
