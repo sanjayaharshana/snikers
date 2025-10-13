@@ -231,7 +231,7 @@
         .snickers-bar-asset:hover { /* keep size constant */ }
 
         .btn-asset {
-            width: 12vh;
+            width: 27vh;
             height: auto;
             margin: 2vh 0;
             cursor: pointer;
@@ -313,7 +313,7 @@
 
         /* unify button sizing to viewport */
         .btn-asset {
-            width: 12vh;
+            width: 27vh;
             height: auto;
             margin: 1.6vh 0;
             cursor: pointer;
@@ -805,14 +805,13 @@
 
             <div class="emotion-container" id="finalResultsContainer" style="display: none;width: 32vh;max-width: 356px;height: 32.1vh;max-height: 409px;border: solid #df0100;border-radius: 20px;overflow: hidden;margin: 15px 0;position: relative;background: #000;border-radius: 55px 0px 64px 0px;">
                 <div class="emotion-section single-image-section">
-                    <div class="emotion-label">SAD</div>
                     <div class="emotion-image-container" id="sadContainer">
                         <div class="placeholder-text">Processing...</div>
                     </div>
                 </div>
             </div>
 
-            <img src="/04/04_TEXT.png" alt="Snickers Logo" class="snickers-logo">
+            <img src="/04/04_TEXT.png" alt="Snickers Logo" class="snickers-logo" style="width: 25vh!important;">
             <img src="/04/SNICKERS BAR_1.png" alt="Snickers Logo" class="snickers-logo">
 
             <div class="loading" id="hungryLoading" style="display: none;">
@@ -827,7 +826,7 @@
                 </div>
             </div>
 
-            <img src="/04/BT_OK.png" alt="OK" class="btn-asset" onclick="finishCampaign()" style="cursor: pointer; display: none;" id="finalOkBtn">
+            <img src="/uis/05/Next_Button.png" alt="OK" class="btn-asset" onclick="finishCampaign()" style="cursor: pointer; display: none;" id="finalOkBtn">
         </div>
 
         <!-- Step 5: Video -->
