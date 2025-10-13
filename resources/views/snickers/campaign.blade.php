@@ -203,7 +203,7 @@
         }
 
         .snickers-logo {
-            width: 22vh; /* scale with screen height */
+            width: 38vh; /* scale with screen height */
             height: auto;
             margin-bottom: 2vh;
             cursor: pointer;
@@ -213,9 +213,10 @@
         .snickers-logo:hover { /* keep size constant */ }
 
         .asset-image {
-            width: 28vh;
+            width: 31vh;
             height: auto;
-            margin: 1.2vh 0;
+            margin: 3.2vh 0;
+            margin-bottom: 30px;
         }
 
         .snickers-bar-asset {
