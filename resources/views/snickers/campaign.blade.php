@@ -171,6 +171,30 @@
             background-image: url('/07/BG.jpg');
         }
 
+        #step8 {
+            background-image: url('/01/BG.jpg');
+        }
+
+        .thank-you-message {
+            text-align: center;
+            margin: 4vh 0;
+        }
+
+        .thank-you-title {
+            font-size: 4.6vh;
+            color: #FFD700;
+            margin-bottom: 2vh;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            font-weight: bold;
+        }
+
+        .thank-you-text {
+            font-size: 2.4vh;
+            color: white;
+            margin-bottom: 1vh;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
         .step.active {
             display: flex;
             animation: slideIn 0.8s ease-in-out;
@@ -903,6 +927,12 @@
             <!-- Done Button -->
             <img src="/07/BT_done.png" alt="Done" class="btn-asset" onclick="finishCampaign()" style="display: none; cursor: pointer;" id="doneBtn">
         </div>
+
+        <!-- Step 8: Thank You Screen -->
+        <div class="step" id="step8" onclick="restartCampaign()">
+            <img src="/uis/06/06_info.png" alt="Snickers Logo" class="asset-image" style="width: 41vh !important;">
+            <img src="/01/SNICKERS LOGO.png" alt="Snickers Logo" class="snickers-logo">
+        </div>
     </div>
 
     <script>
@@ -1587,7 +1617,20 @@
         }
 
         function finishCampaign() {
-            alert('Thank you for participating in the Snickers campaign! Your photos have been saved.');
+            // Navigate to thank you screen (step 8)
+            const currentStepEl = document.getElementById(`step${currentStep}`);
+            if (currentStepEl) {
+                currentStepEl.classList.add('fade-out');
+
+                setTimeout(() => {
+                    currentStepEl.classList.remove('active', 'fade-out');
+                    currentStep = 8;
+                    document.getElementById('step8').classList.add('active');
+                }, 500);
+            }
+        }
+
+        function restartCampaign() {
             // Reset the campaign
             currentStep = 1;
             document.querySelectorAll('.step').forEach(step => {
