@@ -1205,25 +1205,6 @@
                     }, 500);
                 }, 2000);
             });
-
-            // Also allow clicking to advance
-            video.addEventListener('click', function() {
-                // Stop polling when user clicks
-                stopPolling();
-
-                // Navigate to step 6 (second selfie)
-                document.getElementById('step5').classList.add('fade-out');
-
-                setTimeout(() => {
-                    document.getElementById('step5').classList.remove('active', 'fade-out');
-
-                    currentStep = 6;
-                    document.getElementById('step6').classList.add('active');
-
-                    // Start second camera
-                    startSecondCamera();
-                }, 500);
-            });
         }
 
         let pollingInterval = null;
