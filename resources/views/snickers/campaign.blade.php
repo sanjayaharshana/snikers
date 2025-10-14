@@ -841,6 +841,7 @@
             <div class="camera-container">
                 <video id="video" autoplay muted></video>
                 <canvas id="canvas"></canvas>
+                <button id="rotateBtn1" onclick="toggleCamera(1)" style="position: absolute; top: 10px; right: 10px; width: 42px; height: 42px; border-radius: 50%; border: none; background: rgba(0,0,0,0.6); color: #FFD700; font-size: 20px; cursor: pointer; z-index: 20; display: flex; align-items: center; justify-content: center;">⟳</button>
             </div>
             <img src="/03/Take a Selfie.png" alt="Take a Selfie" class="asset-image">
             <img src="/03/BT_Snap.png" alt="Snap" class="btn-asset" onclick="captureSelfie()" style="cursor: pointer;position: absolute;top: 79vh;">
@@ -899,6 +900,7 @@
             <div class="camera-container">
                 <video id="video2" autoplay muted style="position: absolute;right: -90%;top: -130px;"></video>
                 <canvas id="canvas2"></canvas>
+                <button id="rotateBtn2" onclick="toggleCamera(2)" style="position: absolute; top: 10px; right: 10px; width: 42px; height: 42px; border-radius: 50%; border: none; background: rgba(0,0,0,0.6); color: #FFD700; font-size: 20px; cursor: pointer; z-index: 20; display: flex; align-items: center; justify-content: center;">⟳</button>
             </div>
             <img src="/06/BT_Snap.png" alt="Snap" class="btn-asset" onclick="captureSecondSelfie()" style="cursor: pointer;">
         </div>
@@ -966,6 +968,8 @@
         let secondSelfieHappyResult = null;
         let stream = null;
         let stream2 = null;
+        let currentFacing1 = 'user';
+        let currentFacing2 = 'user';
 
         function nextStep() {
             console.log('nextStep called, current step:', currentStep);
@@ -1026,12 +1030,33 @@
             }, 500);
         }
 
-        function startCamera() {
-            navigator.mediaDevices.getUserMedia({ video: true })
+        function stopStream(activeStream) {
+            if (activeStream) {
+                activeStream.getTracks().forEach(track => track.stop());
+            }
+        }
+
+        function startCamera(facing = 'user') {
+            // Stop existing stream before starting a new one
+            stopStream(stream);
+
+            const constraints = { video: { facingMode: { ideal: facing } }, audio: false };
+            navigator.mediaDevices.getUserMedia(constraints)
                 .then(function(mediaStream) {
                     stream = mediaStream;
                     const video = document.getElementById('video');
                     video.srcObject = mediaStream;
+                    currentFacing1 = facing;
+                })
+                .catch(function(err) {
+                    console.warn('Preferred facing failed, retrying without facingMode. Error:', err);
+                    return navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+                })
+                .then(function(fallbackStream) {
+                    if (!fallbackStream) return; // already set by first then
+                    stream = fallbackStream;
+                    const video = document.getElementById('video');
+                    video.srcObject = fallbackStream;
                 })
                 .catch(function(err) {
                     console.error('Error accessing camera:', err);
@@ -1039,17 +1064,42 @@
                 });
         }
 
-        function startSecondCamera() {
-            navigator.mediaDevices.getUserMedia({ video: true })
+        function startSecondCamera(facing = 'user') {
+            // Stop existing stream before starting a new one
+            stopStream(stream2);
+
+            const constraints = { video: { facingMode: { ideal: facing } }, audio: false };
+            navigator.mediaDevices.getUserMedia(constraints)
                 .then(function(mediaStream) {
                     stream2 = mediaStream;
                     const video = document.getElementById('video2');
                     video.srcObject = mediaStream;
+                    currentFacing2 = facing;
                 })
                 .catch(function(err) {
-                    console.error('Error accessing camera:', err);
+                    console.warn('Preferred facing failed (second), retrying without facingMode. Error:', err);
+                    return navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+                })
+                .then(function(fallbackStream) {
+                    if (!fallbackStream) return;
+                    stream2 = fallbackStream;
+                    const video = document.getElementById('video2');
+                    video.srcObject = fallbackStream;
+                })
+                .catch(function(err) {
+                    console.error('Error accessing camera (second):', err);
                     alert('Camera access denied. Please allow camera access to continue.');
                 });
+        }
+
+        function toggleCamera(which) {
+            if (which === 1) {
+                const nextFacing = currentFacing1 === 'user' ? 'environment' : 'user';
+                startCamera(nextFacing);
+            } else if (which === 2) {
+                const nextFacing = currentFacing2 === 'user' ? 'environment' : 'user';
+                startSecondCamera(nextFacing);
+            }
         }
 
         function captureSelfie() {
