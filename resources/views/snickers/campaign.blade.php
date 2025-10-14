@@ -808,23 +808,27 @@
 <body>
     <div class="container" ondblclick="toggleFullscreen()">
         <div class="fullscreen-indicator">Double-click to exit fullscreen</div>
-        <div class="fullscreen-button" onclick="enterBrowserFullscreen()" title="Enter fullscreen">
-            <!-- Corner arrows icon -->
-            <svg viewBox="0 0 24 24" aria-hidden="true">
+        <div class="fullscreen-button" onclick="toggleFullscreen()" title="Toggle fullscreen" id="fullscreenBtn">
+            <!-- Corner arrows icon for entering fullscreen -->
+            <svg class="fullscreen-enter-icon" viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M7 3H3v4h2V5h2V3zm12 0h-4v2h2v2h2V3zM5 17H3v4h4v-2H5v-2zm16 0h-2v2h-2v2h4v-4z"/>
+            </svg>
+            <!-- Compress icon for exiting fullscreen -->
+            <svg class="fullscreen-exit-icon" viewBox="0 0 24 24" aria-hidden="true" style="display: none;">
+                <path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/>
             </svg>
         </div>
         <!-- Step 1: Ready Screen -->
         <div class="step active" id="step1">
-            <img src="/01/SNICKERS LOGO.png" alt="Snickers Logo" class="snickers-logo">
-            <img src="/01/Ready.png" alt="Ready" class="asset-image">
-            <img src="/01/001_Text_1.png" alt="Ready" class="asset-image">
-            <img src="/01/SNICKERS BAR.png" alt="Snickers Bar" class="snickers-bar-asset" onclick="nextStep()">
+            <img src="/01/SNICKERS LOGO.png" alt="Snickers Logo" class="snickers-logo" style="width: 38vh; height: auto; margin-bottom: 0.5vh; cursor: pointer; transition: none;position: absolute;top: 10vh;">
+            <img src="/01/Ready.png" alt="Ready" class="asset-image" style="position: absolute;top: 190px;">
+            <img src="/01/001_Text_1.png" alt="Ready" class="asset-image" style="position: absolute;top: 60vh;">
+            <img src="/01/SNICKERS BAR.png" alt="Snickers Bar" class="snickers-bar-asset" onclick="nextStep()" style="animation: 2s ease 0s infinite normal none running shake;position: absolute;top: 470px;">
         </div>
 
         <!-- Step 2: Phone Number -->
         <div class="step" id="step2">
-            <img src="/02/SNICKERS LOGO.png" alt="Snickers Logo" class="snickers-logo">
+            <img src="/02/SNICKERS LOGO.png" alt="Snickers Logo" class="snickers-logo"  style="width: 38vh; height: auto; margin-bottom: 0.5vh; cursor: pointer; transition: none;position: absolute;top: 10vh;">
             <img src="/02/Enter Number.png" alt="Enter Number" class="asset-image">
             <input type="tel" class="phone-input" id="phoneInput" placeholder="+1234567890" maxlength="20">
             <img src="/02/BT_Continue.png" alt="Continue" class="btn-asset" onclick="nextStep()" style="cursor: pointer;">
@@ -832,7 +836,7 @@
 
         <!-- Step 3: First Selfie -->
         <div class="step" id="step3">
-            <img src="/03/SNICKERS LOGO.png" alt="Snickers Logo" class="snickers-logo">
+            <img src="/03/SNICKERS LOGO.png" alt="Snickers Logo" class="snickers-logo"  style="width: 38vh; height: auto; margin-bottom: 0.5vh; cursor: pointer; transition: none;position: absolute;top: 10vh;">
 
             <div class="camera-container">
                 <video id="video" autoplay muted></video>
@@ -855,8 +859,8 @@
                 </div>
             </div>
 
-            <img src="/04/04_TEXT.png" alt="Snickers Logo" class="snickers-logo" style="width: 25vh!important;">
-            <img src="/04/SNICKERS BAR_1.png" alt="Snickers Logo" class="snickers-logo">
+            <img src="/04/04_TEXT.png" alt="Snickers Logo" class="snickers-logo" style="width: 25vh; height: auto; margin-bottom: 2vh; cursor: pointer; transition: none;">
+            <img src="/04/SNICKERS BAR_1.png" alt="Snickers Logo" class="snickers-logo" style="width: 38vh; height: auto; margin-bottom: 2vh; cursor: pointer; transition: none;">
 
             <div class="loading" id="hungryLoading" style="display: none;">
                 <div class="video-container" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; background: #000; border-radius: 20px; overflow: hidden;">
@@ -891,7 +895,7 @@
 
         <!-- Step 6: Second Selfie -->
         <div class="step" id="step6">
-            <img src="/06/SNICKERS LOGO.png" alt="Snickers Logo" class="snickers-logo">
+            <img src="/06/SNICKERS LOGO.png" alt="Snickers Logo" class="snickers-logo" style="width: 38vh; height: auto; margin-bottom: 2vh; cursor: pointer; transition: none;">
             <img src="/06/Take a Selfie.png" alt="Take a Selfie" class="asset-image">
             <div class="camera-container">
                 <video id="video2" autoplay muted style="position: absolute;right: -90%;top: -130px;"></video>
@@ -903,7 +907,7 @@
 
         <!-- Step 7: Emotion Processing & Result -->
         <div class="step" id="step7">
-            <img src="/07/SNICKERS LOGO.png" alt="Snickers Logo" class="snickers-logo">
+            <img src="/07/SNICKERS LOGO.png" alt="Snickers Logo" class="snickers-logo" style="width: 38vh; height: auto; margin-bottom: 2vh; cursor: pointer; transition: none;">
 
             <!-- Emotion Processing Container -->
             <div class="emotion-processing-container" id="emotionProcessingContainer">
@@ -951,7 +955,7 @@
         <!-- Step 8: Thank You Screen -->
         <div class="step" id="step8" onclick="restartCampaign()">
             <img src="/uis/06/06_info.png" alt="Snickers Logo" class="asset-image" style="width: 41vh !important;">
-            <img src="/01/SNICKERS LOGO.png" alt="Snickers Logo" class="snickers-logo">
+            <img src="/01/SNICKERS LOGO.png" alt="Snickers Logo" class="snickers-logo" style="width: 38vh; height: auto; margin-bottom: 2vh; cursor: pointer; transition: none;">
         </div>
     </div>
 
@@ -971,21 +975,21 @@
             if (currentStep === 2) {
                 const phoneInput = document.getElementById('phoneInput');
                 phoneNumber = phoneInput.value;
-                
+
                 if (!phoneNumber) {
                     // Remove any existing error state
                     phoneInput.classList.remove('error');
-                    
+
                     // Add error styling
                     phoneInput.classList.add('error');
                     phoneInput.placeholder = 'Please enter your phone number';
-                    
+
                     // Clear error after user starts typing
                     phoneInput.addEventListener('input', function() {
                         this.classList.remove('error');
                         this.placeholder = '+1234567890';
                     }, { once: true });
-                    
+
                     return;
                 }
             }
@@ -1713,6 +1717,8 @@
         function enterBrowserFullscreen() {
             const container = document.querySelector('.container');
             const indicator = document.querySelector('.fullscreen-indicator');
+            const enterIcon = document.querySelector('.fullscreen-enter-icon');
+            const exitIcon = document.querySelector('.fullscreen-exit-icon');
 
             const el = container;
             const request = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen || el.mozRequestFullScreen;
@@ -1722,12 +1728,16 @@
 
             container.classList.add('fullscreen');
             if (indicator) indicator.textContent = 'Double-click to exit fullscreen';
+            if (enterIcon) enterIcon.style.display = 'none';
+            if (exitIcon) exitIcon.style.display = 'block';
             document.body.style.overflow = 'hidden';
         }
 
         function exitBrowserFullscreen() {
             const container = document.querySelector('.container');
             const indicator = document.querySelector('.fullscreen-indicator');
+            const enterIcon = document.querySelector('.fullscreen-enter-icon');
+            const exitIcon = document.querySelector('.fullscreen-exit-icon');
 
             const exit = document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen || document.mozCancelFullScreen;
             if (exit && document.fullscreenElement) {
@@ -1736,6 +1746,8 @@
 
             container.classList.remove('fullscreen');
             if (indicator) indicator.textContent = 'Double-click to enter fullscreen';
+            if (enterIcon) enterIcon.style.display = 'block';
+            if (exitIcon) exitIcon.style.display = 'none';
             document.body.style.overflow = 'hidden';
         }
 
@@ -1743,12 +1755,19 @@
         document.addEventListener('fullscreenchange', () => {
             const container = document.querySelector('.container');
             const indicator = document.querySelector('.fullscreen-indicator');
+            const enterIcon = document.querySelector('.fullscreen-enter-icon');
+            const exitIcon = document.querySelector('.fullscreen-exit-icon');
+
             if (!document.fullscreenElement) {
                 container.classList.remove('fullscreen');
                 if (indicator) indicator.textContent = 'Double-click to enter fullscreen';
+                if (enterIcon) enterIcon.style.display = 'block';
+                if (exitIcon) exitIcon.style.display = 'none';
             } else {
                 container.classList.add('fullscreen');
                 if (indicator) indicator.textContent = 'Double-click to exit fullscreen';
+                if (enterIcon) enterIcon.style.display = 'none';
+                if (exitIcon) exitIcon.style.display = 'block';
             }
             document.body.style.overflow = 'hidden';
         });
