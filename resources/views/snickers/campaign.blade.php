@@ -829,7 +829,7 @@
         <!-- Step 2: Phone Number -->
         <div class="step" id="step2">
             <img src="/02/SNICKERS LOGO.png" alt="Snickers Logo" class="snickers-logo"  style="width: 38vh; height: auto; margin-bottom: 0.5vh; cursor: pointer; transition: none;position: absolute;top: 10vh;">
-            <img src="/02/Enter Number.png" alt="Enter Number" class="asset-image">
+            <img src="/02/Enter Number.png" alt="Enter Number" class="asset-image" style="width: 40vh !important;">
             <input type="tel" class="phone-input" id="phoneInput" placeholder="+1234567890" maxlength="20">
             <img src="/02/BT_Continue.png" alt="Continue" class="btn-asset" onclick="nextStep()" style="cursor: pointer;position: absolute;top: 79vh;">
         </div>
