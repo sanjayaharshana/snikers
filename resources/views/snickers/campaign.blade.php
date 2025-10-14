@@ -859,7 +859,7 @@
                 </div>
             </div>
 
-            <img src="/04/04_TEXT.png" alt="Snickers Logo" class="snickers-logo" style="width: 38vh;height: auto;margin-bottom: 5vh;cursor: pointer;transition: none;margin-top: 3vh;">
+            <img src="/uis/05/05_Text.png" alt="Snickers Logo" class="snickers-logo" style="width: 38vh;height: auto;margin-bottom: 5vh;cursor: pointer;transition: none;margin-top: 3vh;">
 
             <div class="loading" id="hungryLoading" style="display: none;">
                 <div class="video-container" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; background: #000; border-radius: 20px; overflow: hidden;">
