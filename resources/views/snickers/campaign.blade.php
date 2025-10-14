@@ -831,7 +831,7 @@
             <img src="/02/SNICKERS LOGO.png" alt="Snickers Logo" class="snickers-logo"  style="width: 38vh; height: auto; margin-bottom: 0.5vh; cursor: pointer; transition: none;position: absolute;top: 10vh;">
             <img src="/02/Enter Number.png" alt="Enter Number" class="asset-image">
             <input type="tel" class="phone-input" id="phoneInput" placeholder="+1234567890" maxlength="20">
-            <img src="/02/BT_Continue.png" alt="Continue" class="btn-asset" onclick="nextStep()" style="cursor: pointer;">
+            <img src="/02/BT_Continue.png" alt="Continue" class="btn-asset" onclick="nextStep()" style="cursor: pointer;position: absolute;top: 79vh;">
         </div>
 
         <!-- Step 3: First Selfie -->
@@ -841,10 +841,9 @@
             <div class="camera-container">
                 <video id="video" autoplay muted></video>
                 <canvas id="canvas"></canvas>
-                <img src="/03/Selfie_Frame.png" alt="Selfie Frame" class="selfie-frame-overlay">
             </div>
             <img src="/03/Take a Selfie.png" alt="Take a Selfie" class="asset-image">
-            <img src="/03/BT_Snap.png" alt="Snap" class="btn-asset" onclick="captureSelfie()" style="cursor: pointer;">
+            <img src="/03/BT_Snap.png" alt="Snap" class="btn-asset" onclick="captureSelfie()" style="cursor: pointer;position: absolute;top: 79vh;">
         </div>
 
         <!-- Step 4: Final Results -->
@@ -900,7 +899,6 @@
             <div class="camera-container">
                 <video id="video2" autoplay muted style="position: absolute;right: -90%;top: -130px;"></video>
                 <canvas id="canvas2"></canvas>
-                <img src="/06/Selfie_Frame.png" alt="Selfie Frame" class="selfie-frame-overlay">
             </div>
             <img src="/06/BT_Snap.png" alt="Snap" class="btn-asset" onclick="captureSecondSelfie()" style="cursor: pointer;">
         </div>
