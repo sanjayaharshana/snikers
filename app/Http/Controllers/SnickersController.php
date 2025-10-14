@@ -147,21 +147,21 @@ class SnickersController extends Controller
             ]);
 
             // Check if direct API mode is enabled
-            if (env('DIRECT_API', false)) {
+            if (\App\Models\Setting::getBool('direct_api', env('DIRECT_API', false))) {
                 \Log::info('Direct API mode enabled, processing sad emotion immediately...');
-                
+
                 // Process sad emotion directly
                 $sadImage = $this->processWithAI($originalPath, 'sad');
-                
+
                 if ($sadImage) {
                     // Save processed sad image
                     $sadFilename = 'sad_' . time() . '_' . Str::random(10) . '.jpg';
                     $sadPath = 'generated/' . $sadFilename;
                     Storage::disk('public')->put($sadPath, base64_decode($sadImage));
-                    
+
                     // Update database record
                     $generatedImage->update(['sad_image' => $sadPath]);
-                    
+
                     // Update emotion data
                     $emotionData = json_decode($generatedImage->emotion_data, true);
                     $emotionData['sad_processed'] = true;
@@ -169,7 +169,7 @@ class SnickersController extends Controller
                     $emotionData['job_status'] = 'completed';
                     $emotionData['job_updated_at'] = now()->toISOString();
                     $generatedImage->update(['emotion_data' => json_encode($emotionData)]);
-                    
+
                     return response()->json([
                         'success' => true,
                         'phone_number' => $request->phone_number,
@@ -245,21 +245,21 @@ class SnickersController extends Controller
             Storage::disk('public')->put($secondSelfiePath, $imageData);
 
             // Check if direct API mode is enabled
-            if (env('DIRECT_API', false)) {
+            if (\App\Models\Setting::getBool('direct_api', env('DIRECT_API', false))) {
                 \Log::info('Direct API mode enabled, processing happy emotion immediately...');
-                
+
                 // Process happy emotion directly
                 $happyImage = $this->processWithAI($secondSelfiePath, 'happy');
-                
+
                 if ($happyImage) {
                     // Save processed happy image
                     $happyFilename = 'happy_' . time() . '_' . Str::random(10) . '.jpg';
                     $happyPath = 'generated/' . $happyFilename;
                     Storage::disk('public')->put($happyPath, base64_decode($happyImage));
-                    
+
                     // Update database record
                     $generatedImage->update(['happy_image' => $happyPath]);
-                    
+
                     // Update emotion data
                     $emotionData = json_decode($generatedImage->emotion_data, true);
                     $emotionData['happy_processed'] = true;
@@ -268,7 +268,7 @@ class SnickersController extends Controller
                     $emotionData['job_updated_at'] = now()->toISOString();
                     $emotionData['campaign_completed'] = true;
                     $generatedImage->update(['emotion_data' => json_encode($emotionData)]);
-                    
+
                     return response()->json([
                         'success' => true,
                         'phone_number' => $request->phone_number,
@@ -322,6 +322,7 @@ class SnickersController extends Controller
 
         // Option 1: Use AILabTools API (primary for Snickers campaign)
         $useAilab = \App\Models\Setting::getBool('use_ailabtools', env('USE_AILABTOOLS_API', true));
+
         if ($useAilab) {
             return $this->processWithOriginalAPI($fullPath, $emotion);
         }
@@ -513,7 +514,7 @@ class SnickersController extends Controller
 
         $response = Http::withHeaders([
             'ailabapi-api-key' => env('AILABTOOLS_API_KEY', 'imff7TwAtdh9xZku1PWRCMjN9CJqLFvr5BevQyKI3ZzEy6DTOrXVI8S4hWgo146U')
-        ])->attach('image_target', file_get_contents($imagePath), basename($imagePath))
+        ])->attach('image_target', file_get_contents($imagePath), basename($imagePath))->timeout(100)
         ->post('https://www.ailabapi.com/api/portrait/effects/emotion-editor', [
             'service_choice' => $serviceChoice
         ]);
@@ -700,7 +701,7 @@ class SnickersController extends Controller
 
         $jobs = $generatedImages->map(function ($image) {
             $emotionData = json_decode($image->emotion_data, true) ?? [];
-            
+
             return [
                 'id' => $image->id,
                 'phone_number' => $image->phone_number,

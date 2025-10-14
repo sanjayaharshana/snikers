@@ -157,6 +157,7 @@ class AdminController extends Controller
 
         $image->update(['emotion_data' => json_encode($emotionData)]);
 
+
         if(\App\Models\Setting::getBool('direct_api', env('DIRECT_API', false))){
 
             $generatedImage = GeneratedImage::find($id);

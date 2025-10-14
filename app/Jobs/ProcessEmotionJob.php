@@ -60,6 +60,7 @@ class ProcessEmotionJob implements ShouldQueue
             // Find the generated image record
             $generatedImage = GeneratedImage::find($this->generatedImageId);
 
+
             if (!$generatedImage) {
                 Log::error("GeneratedImage not found with ID: {$this->generatedImageId}");
                 return;
@@ -124,7 +125,6 @@ class ProcessEmotionJob implements ShouldQueue
      */
     private function processWithGoogleGemini($imagePath, $emotion)
     {
-        try {
             // Convert image to base64
             $imageData = base64_encode(file_get_contents($imagePath));
 
@@ -134,27 +134,28 @@ class ProcessEmotionJob implements ShouldQueue
                 'happy' => 'Modify this image to show a happy facial expression. Make the person look joyful, cheerful, and satisfied while keeping their identity and overall appearance the same.'
             ];
 
+
             $prompt = $prompts[$emotion] ?? $prompts['happy'];
 
             // Google Gemini Imagen API call
-            $response = Http::withHeaders([
-                'X-goog-api-key' => env('GOOGLE_GEMINI_API_KEY'),
-                'Content-Type' => 'application/json'
-            ])->post('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent?key=' . env('GOOGLE_GEMINI_API_KEY'), [
-                'contents' => [[
-                    'parts' => [
-                        [ 'text' => $prompt ],
-                        [ 'inlineData' => [
-                            'mimeType' => 'image/jpeg',
-                            'data' => $imageData
-                        ]]
-                    ]
-                ]],
-                'generationConfig' => [
-                    'responseModalities' => ["IMAGE"]
-                ]
-            ]);
 
+                $response = Http::withHeaders([
+                    'X-goog-api-key' => env('GOOGLE_GEMINI_API_KEY'),
+                    'Content-Type' => 'application/json'
+                ])->timeout(400)->post('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent?key=' . env('GOOGLE_GEMINI_API_KEY'), [
+                    'contents' => [[
+                        'parts' => [
+                            [ 'text' => $prompt ],
+                            [ 'inlineData' => [
+                                'mimeType' => 'image/jpeg',
+                                'data' => $imageData
+                            ]]
+                        ]
+                    ]],
+                    'generationConfig' => [
+                        'responseModalities' => ["IMAGE"]
+                    ]
+                ]);
             // Log token usage
             TokenTrackingService::logApiCall([
                 'api_service' => 'google_gemini',
@@ -191,10 +192,7 @@ class ProcessEmotionJob implements ShouldQueue
 
             return null;
 
-        } catch (\Exception $e) {
-            Log::error('Google Gemini API error: ' . $e->getMessage());
-            return null;
-        }
+
     }
 
     /**
@@ -202,7 +200,6 @@ class ProcessEmotionJob implements ShouldQueue
      */
     private function processWithOriginalAPI($imagePath, $emotion)
     {
-        try {
             // Keep the original implementation as fallback
             $serviceChoice = $emotion === 'sad' ? '15' : '12';
 
@@ -211,23 +208,6 @@ class ProcessEmotionJob implements ShouldQueue
             ])->attach('image_target', file_get_contents($imagePath), basename($imagePath))
             ->post('https://www.ailabapi.com/api/portrait/effects/emotion-editor', [
                 'service_choice' => $serviceChoice
-            ]);
-
-            // Log token usage
-            TokenTrackingService::logApiCall([
-                'api_service' => 'ailabtools',
-                'operation_type' => 'emotion_processing',
-                'emotion' => $emotion,
-                'model_used' => 'emotion-editor',
-                'request_data' => [
-                    'service_choice' => $serviceChoice,
-                    'image_path' => basename($imagePath),
-                ],
-                'response_data' => $response->json(),
-                'success' => $response->successful(),
-                'error_message' => $response->successful() ? null : $response->body(),
-                'generated_image_id' => $this->generatedImageId,
-                'phone_number' => $this->phoneNumber,
             ]);
 
             if ($response->successful()) {
@@ -240,10 +220,6 @@ class ProcessEmotionJob implements ShouldQueue
             }
 
             return null;
-        } catch (\Exception $e) {
-            Log::error('AILabTools API error: ' . $e->getMessage());
-            return null;
-        }
     }
 
     /**
