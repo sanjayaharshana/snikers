@@ -821,9 +821,9 @@
         <!-- Step 1: Ready Screen -->
         <div class="step active" id="step1">
             <img src="/01/SNICKERS LOGO.png" alt="Snickers Logo" class="snickers-logo" style="width: 38vh; height: auto; margin-bottom: 0.5vh; cursor: pointer; transition: none;position: absolute;top: 10vh;">
-            <img src="/01/Ready.png" alt="Ready" class="asset-image" style="position: absolute;top: 190px;">
+            <img src="/01/Ready.png" alt="Ready" class="asset-image" style="position: absolute;top: 24vh;">
             <img src="/01/001_Text_1.png" alt="Ready" class="asset-image" style="position: absolute;top: 60vh;">
-            <img src="/01/SNICKERS BAR.png" alt="Snickers Bar" class="snickers-bar-asset" onclick="nextStep()" style="animation: 2s ease 0s infinite normal none running shake;position: absolute;top: 470px;">
+            <img src="/01/SNICKERS BAR.png" alt="Snickers Bar" class="snickers-bar-asset" onclick="nextStep()" style="animation: 2s ease 0s infinite normal none running shake;position: absolute;top: 70vh;">
         </div>
 
         <!-- Step 2: Phone Number -->
