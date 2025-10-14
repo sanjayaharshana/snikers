@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use App\Models\GeneratedImage;
 use Illuminate\Support\Facades\Hash;
@@ -51,7 +53,7 @@ class AdminController extends Controller
 
         $images = GeneratedImage::orderBy('created_at', 'desc')->paginate(10);
         $tokenStats = TokenTrackingService::getDashboardStats();
-        
+
         return view('admin.dashboard', compact('images', 'tokenStats'));
     }
 
@@ -152,13 +154,96 @@ class AdminController extends Controller
         $emotionData['job_status'] = 'queued';
         $emotionData['job_updated_at'] = now()->toISOString();
         $emotionData['happy_processed'] = $emotionData['happy_processed'] ?? false;
+
         $image->update(['emotion_data' => json_encode($emotionData)]);
+
+        if(env('DIRECT_API', false)){
+
+            $generatedImage = GeneratedImage::find($id);
+            $fullPath = Storage::disk('public')->path($generatedImage->original_image);
+
+            if (env('USE_AILABTOOLS_API', true)) {
+                $processedImage =  $this->processWithOriginalAPI($fullPath, 'happy',$generatedImage->id, $generatedImage->phone_number);
+            }
+
+            // Option 2: Use Google Gemini Imagen API (alternative)
+            if (env('USE_GOOGLE_GEMINI_API', false)) {
+                $processedImage =  $this->processWithGoogleGemini($fullPath, 'happy',$generatedImage->id, $generatedImage->phone_number);
+            }
+
+            if ($processedImage) {
+                // Save processed image
+                $filename = 'happy' . '_' . time() . '_' . uniqid() . '.jpg';
+                $processedPath = 'generated/' . $filename;
+
+                Storage::disk('public')->put($processedPath, base64_decode($processedImage));
+
+                // Update the database record
+                $this->updateGeneratedImage($generatedImage, $processedPath, 'happy');
+
+            } else {
+                // Use original image as fallback
+               return 'null';
+            }
+        }
 
         // Dispatch the happy emotion processing job using the original image
         ProcessEmotionJob::dispatch($image->id, $image->original_image, 'happy', $image->phone_number);
 
         return redirect()->route('admin.dashboard')->with('success', 'Happy photo generation has been queued for Image ID '.$image->id);
     }
+
+
+
+
+    private function processWithOriginalAPI($imagePath, $emotion, $imageId, $phoneNumber)
+    {
+        try {
+            // Keep the original implementation as fallback
+            $serviceChoice = $emotion === 'sad' ? '15' : '12';
+
+            $response = Http::withHeaders([
+                'ailabapi-api-key' => env('AILABTOOLS_API_KEY', 'imff7TwAtdh9xZku1PWRCMjN9CJqLFvr5BevQyKI3ZzEy6DTOrXVI8S4hWgo146U')
+            ])->attach('image_target', file_get_contents($imagePath), basename($imagePath))
+                ->post('https://www.ailabapi.com/api/portrait/effects/emotion-editor', [
+                    'service_choice' => $serviceChoice
+                ]);
+
+            // Log token usage
+            TokenTrackingService::logApiCall([
+                'api_service' => 'ailabtools',
+                'operation_type' => 'emotion_processing',
+                'emotion' => $emotion,
+                'model_used' => 'emotion-editor',
+                'request_data' => [
+                    'service_choice' => $serviceChoice,
+                    'image_path' => basename($imagePath),
+                ],
+                'response_data' => $response->json(),
+                'success' => $response->successful(),
+                'error_message' => $response->successful() ? null : $response->body(),
+                'generated_image_id' => $imageId,
+                'phone_number' => $phoneNumber,
+            ]);
+
+            if ($response->successful()) {
+                $data = $response->json();
+                if (isset($data['data']['image'])) {
+                    return $data['data']['image'];
+                }
+            } else {
+                Log::error('AILabTools API Error: ' . $response->status() . ' - ' . $response->body());
+            }
+
+            return null;
+        } catch (\Exception $e) {
+            Log::error('AILabTools API error: ' . $e->getMessage());
+            return null;
+        }
+    }
+
+
+
 
     public function queueJobs()
     {
@@ -271,5 +356,98 @@ class AdminController extends Controller
         $image = GeneratedImage::findOrFail($id);
 
         return view('admin.frame_generate_image', compact('image'));
+    }
+
+
+    private function processWithGoogleGemini($imagePath, $emotion, $imageId, $phoneNumber)
+    {
+        try {
+            // Convert image to base64
+            $imageData = base64_encode(file_get_contents($imagePath));
+
+            // Create emotion-specific prompts
+            $prompts = [
+                'sad' => 'Modify this image to show a sad facial expression. Make the person look disappointed, downcast, or melancholy while keeping their identity and overall appearance the same.',
+                'happy' => 'Modify this image to show a happy facial expression. Make the person look joyful, cheerful, and satisfied while keeping their identity and overall appearance the same.'
+            ];
+
+            $prompt = $prompts[$emotion] ?? $prompts['happy'];
+
+            // Google Gemini Imagen API call
+            $response = Http::withHeaders([
+                'X-goog-api-key' => env('GOOGLE_GEMINI_API_KEY'),
+                'Content-Type' => 'application/json'
+            ])->post('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent?key=' . env('GOOGLE_GEMINI_API_KEY'), [
+                'contents' => [[
+                    'parts' => [
+                        [ 'text' => $prompt ],
+                        [ 'inlineData' => [
+                            'mimeType' => 'image/jpeg',
+                            'data' => $imageData
+                        ]]
+                    ]
+                ]],
+                'generationConfig' => [
+                    'responseModalities' => ["IMAGE"]
+                ]
+            ]);
+
+            // Log token usage
+            TokenTrackingService::logApiCall([
+                'api_service' => 'google_gemini',
+                'operation_type' => 'emotion_processing',
+                'emotion' => $emotion,
+                'model_used' => 'gemini-2.5-flash-image-preview',
+                'request_data' => [
+                    'prompt' => $prompt,
+                    'image_size' => strlen($imageData),
+                ],
+                'response_data' => $response->json(),
+                'success' => $response->successful(),
+                'error_message' => $response->successful() ? null : $response->body(),
+                'generated_image_id' => $imageId,
+                'phone_number' => $phoneNumber,
+            ]);
+
+            if ($response->successful()) {
+                $data = $response->json();
+                Log::info('Google Gemini API Response received');
+
+                // Extract the generated image
+                if (isset($data['candidates'][0]['content']['parts'][0]['inlineData']['data'])) {
+                    return $data['candidates'][0]['content']['parts'][0]['inlineData']['data'];
+                }
+
+                // Check for alternative response format
+                if (isset($data['candidates'][0]['content']['parts'][1]['inlineData']['data'])) {
+                    return $data['candidates'][0]['content']['parts'][1]['inlineData']['data'];
+                }
+            } else {
+                Log::error('Google Gemini API Error: ' . $response->status() . ' - ' . $response->body());
+            }
+
+            return null;
+
+        } catch (\Exception $e) {
+            Log::error('Google Gemini API error: ' . $e->getMessage());
+            return null;
+        }
+    }
+
+    private function updateGeneratedImage($generatedImage, $processedPath, $emotion)
+    {
+        // Update the appropriate field based on emotion
+        if ($emotion === 'sad') {
+            $generatedImage->update(['sad_image' => $processedPath]);
+        } elseif ($emotion === 'happy') {
+            $generatedImage->update(['happy_image' => $processedPath]);
+        }
+
+        // Update emotion data
+        $emotionData = json_decode($generatedImage->emotion_data, true) ?? [];
+        $emotionData[$emotion . '_processed'] = true;
+        $emotionData[$emotion . '_image_path'] = $processedPath;
+
+        $generatedImage->update(['emotion_data' => json_encode($emotionData)]);
     }
 }

@@ -50,8 +50,6 @@ class ProcessEmotionJob implements ShouldQueue
      */
     public function handle(): void
     {
-        try {
-            Log::info("Starting AI processing job for emotion: {$this->emotion}, Image ID: {$this->generatedImageId}");
 
             // Check if direct API mode is enabled
             if (env('DIRECT_API', false)) {
@@ -61,6 +59,7 @@ class ProcessEmotionJob implements ShouldQueue
 
             // Find the generated image record
             $generatedImage = GeneratedImage::find($this->generatedImageId);
+
             if (!$generatedImage) {
                 Log::error("GeneratedImage not found with ID: {$this->generatedImageId}");
                 return;
@@ -76,7 +75,7 @@ class ProcessEmotionJob implements ShouldQueue
                 // Save processed image
                 $filename = $this->emotion . '_' . time() . '_' . uniqid() . '.jpg';
                 $processedPath = 'generated/' . $filename;
-                
+
                 Storage::disk('public')->put($processedPath, base64_decode($processedImage));
 
                 // Update the database record
@@ -91,10 +90,6 @@ class ProcessEmotionJob implements ShouldQueue
                 $this->handleProcessingFailure($generatedImage);
             }
 
-        } catch (\Exception $e) {
-            Log::error("AI processing job failed: " . $e->getMessage());
-            $this->handleProcessingFailure(GeneratedImage::find($this->generatedImageId));
-        }
     }
 
     /**
@@ -267,7 +262,7 @@ class ProcessEmotionJob implements ShouldQueue
         $emotionData = json_decode($generatedImage->emotion_data, true) ?? [];
         $emotionData[$this->emotion . '_processed'] = true;
         $emotionData[$this->emotion . '_image_path'] = $processedPath;
-        
+
         $generatedImage->update(['emotion_data' => json_encode($emotionData)]);
     }
 
@@ -279,7 +274,7 @@ class ProcessEmotionJob implements ShouldQueue
         $emotionData = json_decode($generatedImage->emotion_data, true) ?? [];
         $emotionData['job_status'] = $status;
         $emotionData['job_updated_at'] = now()->toISOString();
-        
+
         $generatedImage->update(['emotion_data' => json_encode($emotionData)]);
     }
 
@@ -301,7 +296,7 @@ class ProcessEmotionJob implements ShouldQueue
         // Save fallback image
         $filename = $this->emotion . '_fallback_' . time() . '_' . uniqid() . '.jpg';
         $fallbackPath = 'generated/' . $filename;
-        
+
         Storage::disk('public')->put($fallbackPath, base64_decode($fallbackImage));
 
         // Update the database record
@@ -317,10 +312,10 @@ class ProcessEmotionJob implements ShouldQueue
     private function processWithDummyAI($imagePath, $emotion = 'happy')
     {
         Log::info("Using dummy AI processing for emotion: {$emotion}");
-        
+
         // Simulate processing delay
         sleep(2);
-        
+
         // Return original image as base64
         $originalImageData = file_get_contents($imagePath);
         return base64_encode($originalImageData);
@@ -332,7 +327,7 @@ class ProcessEmotionJob implements ShouldQueue
     public function failed(\Throwable $exception): void
     {
         Log::error("ProcessEmotionJob failed permanently: " . $exception->getMessage());
-        
+
         $generatedImage = GeneratedImage::find($this->generatedImageId);
         if ($generatedImage) {
             $this->updateJobStatus($generatedImage, 'failed');
