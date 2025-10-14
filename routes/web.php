@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SnickersController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\PreviewController;
+use App\Http\Controllers\SettingsController;
 
 Route::get('/', function () {
     return redirect()->route('snickers.campaign');
@@ -35,6 +36,10 @@ Route::put('/admin/images/{id}', [AdminController::class, 'update'])->name('admi
 Route::delete('/admin/images/{id}', [AdminController::class, 'destroy'])->name('admin.destroy');
 Route::get('/admin/images/{id}/download/{type}', [AdminController::class, 'download'])->name('admin.download');
 Route::post('/admin/images/{id}/generate-happy', [AdminController::class, 'generateHappy'])->name('admin.generate-happy');
+
+// Admin Settings
+Route::get('/admin/settings', [SettingsController::class, 'index'])->name('admin.settings');
+Route::post('/admin/settings', [SettingsController::class, 'update'])->name('admin.settings.update');
 
 // Image Management Routes
 Route::middleware(['admin'])->prefix('admin/images')->name('admin.images.')->group(function () {

@@ -311,8 +311,9 @@ class SnickersController extends Controller
 
     private function processWithAI($imagePath, $emotion = 'happy')
     {
-        // Check if AI mode is disabled for testing
-        if (env('AI_MODE', true) === false) {
+        // Check if AI mode is disabled for testing (DB setting overrides env)
+        $aiMode = \App\Models\Setting::getBool('ai_mode', env('AI_MODE', true));
+        if ($aiMode === false) {
             \Log::info('AI_MODE is disabled, using dummy processing for emotion: ' . $emotion);
             return $this->processWithDummyAI($imagePath, $emotion);
         }
@@ -320,12 +321,14 @@ class SnickersController extends Controller
         $fullPath = Storage::disk('public')->path($imagePath);
 
         // Option 1: Use AILabTools API (primary for Snickers campaign)
-        if (env('USE_AILABTOOLS_API', true)) {
+        $useAilab = \App\Models\Setting::getBool('use_ailabtools', env('USE_AILABTOOLS_API', true));
+        if ($useAilab) {
             return $this->processWithOriginalAPI($fullPath, $emotion);
         }
 
         // Option 2: Use Google Gemini Imagen API (alternative)
-        if (env('USE_GOOGLE_GEMINI_API', false)) {
+        $useGemini = \App\Models\Setting::getBool('use_gemini', env('USE_GOOGLE_GEMINI_API', false));
+        if ($useGemini) {
             return $this->processWithGoogleGemini($fullPath, $emotion);
         }
 

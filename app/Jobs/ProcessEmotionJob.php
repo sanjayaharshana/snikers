@@ -51,8 +51,8 @@ class ProcessEmotionJob implements ShouldQueue
     public function handle(): void
     {
 
-            // Check if direct API mode is enabled
-            if (env('DIRECT_API', false)) {
+            // Check if direct API mode is enabled (DB setting overrides env)
+            if (\App\Models\Setting::getBool('direct_api', env('DIRECT_API', false))) {
                 Log::info("Direct API mode is enabled, skipping queue job processing for emotion: {$this->emotion}");
                 return;
             }
@@ -97,8 +97,8 @@ class ProcessEmotionJob implements ShouldQueue
      */
     private function processWithAI($imagePath, $emotion = 'happy')
     {
-        // Check if AI mode is disabled for testing
-        if (env('AI_MODE', true) === false) {
+        // Check if AI mode is disabled for testing (DB setting overrides env)
+        if (\App\Models\Setting::getBool('ai_mode', env('AI_MODE', true)) === false) {
             Log::info('AI_MODE is disabled, using dummy processing for emotion: ' . $emotion);
             return $this->processWithDummyAI($imagePath, $emotion);
         }
@@ -106,12 +106,12 @@ class ProcessEmotionJob implements ShouldQueue
         $fullPath = Storage::disk('public')->path($imagePath);
 
         // Option 1: Use AILabTools API (primary for Snickers campaign)
-        if (env('USE_AILABTOOLS_API', true)) {
+        if (\App\Models\Setting::getBool('use_ailabtools', env('USE_AILABTOOLS_API', true))) {
             return $this->processWithOriginalAPI($fullPath, $emotion);
         }
 
         // Option 2: Use Google Gemini Imagen API (alternative)
-        if (env('USE_GOOGLE_GEMINI_API', false)) {
+        if (\App\Models\Setting::getBool('use_gemini', env('USE_GOOGLE_GEMINI_API', false))) {
             return $this->processWithGoogleGemini($fullPath, $emotion);
         }
 

@@ -1074,6 +1074,10 @@
                         <span class="nav-item-icon"><i class="fa-solid fa-tasks"></i></span>
                         <span class="nav-item-text">Queue Jobs</span>
                     </a>
+                    <a href="{{ route('admin.settings') }}" class="nav-item {{ request()->routeIs('admin.settings') ? 'active' : '' }}">
+                        <span class="nav-item-icon"><i class="fa-solid fa-gear"></i></span>
+                        <span class="nav-item-text">Settings</span>
+                    </a>
                     <a href="{{ route('snickers.campaign') }}" target="_blank" class="nav-item">
                         <span class="nav-item-icon"><i class="fa-solid fa-candy-cane"></i></span>
                         <span class="nav-item-text">Snickers Campaign</span>
