@@ -17,7 +17,7 @@
 @section('content')
     <div class="card">
 
-        <div id="exportable-card" style="border: 3px solid #000; display: flex; height: 720px;">
+        <div id="exportable-card" style="border: 3px solid #000; display: flex; height: 1000px;">
             <div style="flex: 1;position: relative;">
                 <div id="left-container" style="height: -webkit-fill-available;background: url('{{ Storage::url($image->sad_image) }}') no-repeat;background-size: 100% 100%;background-position: center">
                     <div id="exportable-image-left" style="background: url('{{url('framebox_left.png')}}');height: 100%;background-size: contain;background-position: center;background-repeat: no-repeat"></div>
@@ -89,10 +89,10 @@
                         console.log(canvas.height/2);
 
                         // Draw left side background
-                        ctx.drawImage(leftContainerImg, 0, 0, halfWidth, 600);
+                        ctx.drawImage(leftContainerImg, 0, 0, halfWidth, canvas.height);
 
                         // Draw right side background
-                        ctx.drawImage(rightContainerImg, halfWidth, 0, halfWidth, 600);
+                        ctx.drawImage(rightContainerImg, halfWidth, 0, halfWidth, canvas.height);
 
                         // Draw left frame on top
                         ctx.drawImage(leftFrameImg, 0, 0, halfWidth, canvas.height);
