@@ -542,6 +542,14 @@
             100% { transform: rotate(360deg); }
         }
 
+        @keyframes rotateSnickers {
+            0% { transform: rotate(0deg) scale(1); }
+            25% { transform: rotate(90deg) scale(1.1); }
+            50% { transform: rotate(180deg) scale(1); }
+            75% { transform: rotate(270deg) scale(1.1); }
+            100% { transform: rotate(360deg) scale(1); }
+        }
+
         .frame-overlay {
             position: absolute;
             top: 0;
@@ -862,14 +870,13 @@
             <img src="/uis/05/05_Text.png" alt="Snickers Logo" class="snickers-logo" style="width: 38vh;height: auto;margin-bottom: 5vh;cursor: pointer;transition: none;margin-top: 3vh;">
 
             <div class="loading" id="hungryLoading" style="display: none;">
-                <div class="video-container" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; background: #000; border-radius: 20px; overflow: hidden;">
-                    <video id="processing-video" autoplay muted loop style="width: 100%; height: 100%; object-fit: cover;">
-                        <source src="/05/SNK SATISFYING VIDEO IGS.mp4" type="video/mp4">
-                    </video>
-{{--                    <div class="video-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(0,0,0,0.3);">--}}
-{{--                        <div class="spinner" style="margin-bottom: 20px;"></div>--}}
-{{--                        <div style="color: #FFD700; font-size: 18px; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.8);">Processing your photos...</div>--}}
-{{--                    </div>--}}
+                <div class="snickers-animation-container" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; background: #000; border-radius: 20px; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+                    <div class="video-container">
+                        <img src="/01/SNICKERS BAR.png" alt="Snickers Bar" class="rotating-snickers" style="width: 50vh;height: auto;animation: rotateSnickers 2s linear infinite;position: absolute;top: 31vh;left: 4vh;">
+                    </div>
+                    <div class="processing-text" style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); color: #FFD700; font-size: 18px; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.8);">
+                        Processing your photos...
+                    </div>
                 </div>
             </div>
 
@@ -879,9 +886,7 @@
         <!-- Step 5: Video -->
         <div class="step" id="step5">
             <div class="video-container">
-                <video id="satisfying-video" autoplay muted loop>
-                    <source src="/05/SNK SATISFYING VIDEO IGS.mp4" type="video/mp4">
-                </video>
+                <img src="/01/SNICKERS BAR.png" alt="Snickers Bar" class="rotating-snickers" style="width: 50vh;height: auto;animation: rotateSnickers 2s linear infinite;position: absolute;top: 31vh;left: 0vh;">
             </div>
 
             <!-- Processing Status Overlay -->
