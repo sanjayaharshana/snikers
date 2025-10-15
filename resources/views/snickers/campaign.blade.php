@@ -550,6 +550,84 @@
             100% { transform: rotate(360deg) scale(1); }
         }
 
+        @keyframes gradientShift {
+            0% { 
+                background: linear-gradient(45deg, #8B4513, #A0522D, #CD853F, #8B4513);
+                background-size: 400% 400%;
+                background-position: 0% 50%;
+            }
+            25% { 
+                background: linear-gradient(45deg, #A0522D, #CD853F, #8B4513, #A0522D);
+                background-size: 400% 400%;
+                background-position: 100% 50%;
+            }
+            50% { 
+                background: linear-gradient(45deg, #CD853F, #8B4513, #A0522D, #CD853F);
+                background-size: 400% 400%;
+                background-position: 100% 100%;
+            }
+            75% { 
+                background: linear-gradient(45deg, #8B4513, #A0522D, #CD853F, #8B4513);
+                background-size: 400% 400%;
+                background-position: 0% 100%;
+            }
+            100% { 
+                background: linear-gradient(45deg, #8B4513, #A0522D, #CD853F, #8B4513);
+                background-size: 400% 400%;
+                background-position: 0% 50%;
+            }
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { 
+                box-shadow: 0 0 20px rgba(255, 215, 0, 0.3), 
+                           0 0 40px rgba(255, 215, 0, 0.2), 
+                           0 0 60px rgba(255, 215, 0, 0.1);
+            }
+            50% { 
+                box-shadow: 0 0 30px rgba(255, 215, 0, 0.5), 
+                           0 0 60px rgba(255, 215, 0, 0.3), 
+                           0 0 90px rgba(255, 215, 0, 0.2);
+            }
+        }
+
+        @keyframes sparkle {
+            0%, 100% { opacity: 0; transform: scale(0) rotate(0deg); }
+            25% { opacity: 1; transform: scale(1) rotate(90deg); }
+            50% { opacity: 0.8; transform: scale(1.2) rotate(180deg); }
+            75% { opacity: 1; transform: scale(1) rotate(270deg); }
+        }
+
+        .animated-background {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .animated-background::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: sparkle 3s linear infinite;
+            pointer-events: none;
+        }
+
+        .animated-background::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(255, 215, 0, 0.1) 50%, transparent 70%);
+            animation: sparkle 4s linear infinite reverse;
+            pointer-events: none;
+        }
+
         .frame-overlay {
             position: absolute;
             top: 0;
@@ -870,7 +948,7 @@
             <img src="/uis/05/05_Text.png" alt="Snickers Logo" class="snickers-logo" style="width: 38vh;height: auto;margin-bottom: 5vh;cursor: pointer;transition: none;margin-top: 3vh;">
 
             <div class="loading" id="hungryLoading" style="display: none;">
-                <div class="snickers-animation-container" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; background: #000; border-radius: 20px; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+                <div class="snickers-animation-container animated-background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; background: #8B4513; border-radius: 20px; overflow: hidden; display: flex; align-items: center; justify-content: center; animation: gradientShift 4s ease-in-out infinite, pulseGlow 3s ease-in-out infinite;">
                     <img src="/01/SNICKERS BAR.png" alt="Snickers Bar" class="rotating-snickers" style="width: 200px; height: auto; animation: rotateSnickers 2s linear infinite;">
                     <div class="processing-text" style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); color: #FFD700; font-size: 18px; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.8);">
                         Processing your photos...
@@ -883,7 +961,7 @@
 
         <!-- Step 5: Video -->
         <div class="step" id="step5">
-            <div class="snickers-animation-container" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; background: #000; border-radius: 20px; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+            <div class="snickers-animation-container animated-background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; background: #8B4513; border-radius: 20px; overflow: hidden; display: flex; align-items: center; justify-content: center; animation: gradientShift 4s ease-in-out infinite, pulseGlow 3s ease-in-out infinite;">
                 <img src="/01/SNICKERS BAR.png" alt="Snickers Bar" class="rotating-snickers" style="width: 200px; height: auto; animation: rotateSnickers 2s linear infinite;">
                 <div class="processing-text" style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); color: #FFD700; font-size: 18px; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.8);">
                     Processing your photos...
@@ -900,7 +978,7 @@
             <div id="processingStatusOverlay" style="position: absolute; top: 20px; left: 20px; right: 20px; background: rgba(0,0,0,0.7); color: #FFD700; padding: 15px; border-radius: 10px; text-align: center; font-size: 16px; font-weight: bold; z-index: 1000;">
 
                 <div class="loading" id="hungryLoading" style="display: none;">
-                    <div class="snickers-animation-container" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; background: #000; border-radius: 20px; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+                    <div class="snickers-animation-container animated-background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; background: #8B4513; border-radius: 20px; overflow: hidden; display: flex; align-items: center; justify-content: center; animation: gradientShift 4s ease-in-out infinite, pulseGlow 3s ease-in-out infinite;">
                         <img src="/01/SNICKERS BAR.png" alt="Snickers Bar" class="rotating-snickers" style="width: 200px; height: auto; animation: rotateSnickers 2s linear infinite;">
                         <div class="processing-text" style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); color: #FFD700; font-size: 18px; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.8);">
                             Processing your photos...
