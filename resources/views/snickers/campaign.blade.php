@@ -550,6 +550,128 @@
             100% { transform: rotate(360deg) scale(1); }
         }
 
+        @keyframes floatBubble {
+            0% {
+                transform: translateY(100vh) translateX(0px) scale(0.5);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) translateX(50px) scale(1.2);
+                opacity: 0;
+            }
+        }
+
+        @keyframes floatBubble2 {
+            0% {
+                transform: translateY(100vh) translateX(20px) scale(0.3);
+                opacity: 0;
+            }
+            15% {
+                opacity: 0.8;
+            }
+            85% {
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateY(-100px) translateX(-30px) scale(1);
+                opacity: 0;
+            }
+        }
+
+        @keyframes floatBubble3 {
+            0% {
+                transform: translateY(100vh) translateX(-20px) scale(0.7);
+                opacity: 0;
+            }
+            20% {
+                opacity: 0.6;
+            }
+            80% {
+                opacity: 0.6;
+            }
+            100% {
+                transform: translateY(-100px) translateX(40px) scale(0.8);
+                opacity: 0;
+            }
+        }
+
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 215, 0, 0.3), rgba(255, 215, 0, 0.1));
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+
+        .bubble:nth-child(1) {
+            width: 20px;
+            height: 20px;
+            left: 10%;
+            animation: floatBubble 6s linear infinite;
+            animation-delay: 0s;
+        }
+
+        .bubble:nth-child(2) {
+            width: 15px;
+            height: 15px;
+            left: 20%;
+            animation: floatBubble2 8s linear infinite;
+            animation-delay: 2s;
+        }
+
+        .bubble:nth-child(3) {
+            width: 25px;
+            height: 25px;
+            left: 30%;
+            animation: floatBubble3 7s linear infinite;
+            animation-delay: 1s;
+        }
+
+        .bubble:nth-child(4) {
+            width: 18px;
+            height: 18px;
+            left: 50%;
+            animation: floatBubble 9s linear infinite;
+            animation-delay: 3s;
+        }
+
+        .bubble:nth-child(5) {
+            width: 22px;
+            height: 22px;
+            left: 70%;
+            animation: floatBubble2 5s linear infinite;
+            animation-delay: 1.5s;
+        }
+
+        .bubble:nth-child(6) {
+            width: 16px;
+            height: 16px;
+            left: 80%;
+            animation: floatBubble3 6.5s linear infinite;
+            animation-delay: 4s;
+        }
+
+        .bubble:nth-child(7) {
+            width: 12px;
+            height: 12px;
+            left: 90%;
+            animation: floatBubble 7.5s linear infinite;
+            animation-delay: 2.5s;
+        }
+
+        .bubble:nth-child(8) {
+            width: 28px;
+            height: 28px;
+            left: 40%;
+            animation: floatBubble2 8.5s linear infinite;
+            animation-delay: 0.5s;
+        }
+
         .frame-overlay {
             position: absolute;
             top: 0;
@@ -870,11 +992,12 @@
             <img src="/uis/05/05_Text.png" alt="Snickers Logo" class="snickers-logo" style="width: 38vh;height: auto;margin-bottom: 5vh;cursor: pointer;transition: none;margin-top: 3vh;">
 
             <div class="loading" id="hungryLoading" style="display: none;">
-                <div class="snickers-animation-container" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; background: #000; border-radius: 20px; overflow: hidden; display: flex; align-items: center; justify-content: center;">
-                    <div class="video-container">
-                        <img src="/01/SNICKERS BAR.png" alt="Snickers Bar" class="rotating-snickers" style="width: 50vh;height: auto;animation: rotateSnickers 2s linear infinite;position: absolute;top: 31vh;left: 4vh;">
+                <div class="snickers-animation-container" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; background: linear-gradient(135deg, #500101 0%, #000000 100%); border-radius: 20px; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+
+                    <div class="video-container" style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                        <img src="/01/SNICKERS BAR.png" alt="Snickers Bar" class="rotating-snickers" style="width: 50vh;height: auto;animation: rotateSnickers 2s linear infinite;z-index: 10;">
                     </div>
-                    <div class="processing-text" style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); color: #FFD700; font-size: 18px; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.8);">
+                    <div class="processing-text" style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); color: #FFD700; font-size: 18px; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); z-index: 10;">
                         Processing your photos...
                     </div>
                 </div>
@@ -885,16 +1008,17 @@
 
         <!-- Step 5: Video -->
         <div class="step" id="step5">
-            <div class="video-container">
-                <img src="/01/SNICKERS BAR.png" alt="Snickers Bar" class="rotating-snickers" style="width: 50vh;height: auto;animation: rotateSnickers 2s linear infinite;position: absolute;top: 31vh;left: 0vh;">
-            </div>
+            <div class="snickers-animation-container" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; background: linear-gradient(135deg, #500101 0%, #000000 100%); border-radius: 20px; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+                <div class="video-container" style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                    <img src="/01/SNICKERS BAR.png" alt="Snickers Bar" class="rotating-snickers" style="width: 50vh;height: auto;animation: rotateSnickers 2s linear infinite;">
+                </div>
 
-            <!-- Processing Status Overlay -->
-            <div id="processingStatusOverlay" style="position: absolute; top: 20px; left: 20px; right: 20px; background: rgba(0,0,0,0.7); color: #FFD700; padding: 15px; border-radius: 10px; text-align: center; font-size: 16px; font-weight: bold; z-index: 1000;">
-                <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
-                    <div class="spinner" style="width: 20px; height: 20px; border-width: 2px;"></div>
+                <!-- Processing Status Overlay -->
+                <div class="processing-text" style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); color: #FFD700; font-size: 18px; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); z-index: 10;">
+                    Processing your photos...
                 </div>
             </div>
+
         </div>
 
         <!-- Step 6: Second Selfie -->
