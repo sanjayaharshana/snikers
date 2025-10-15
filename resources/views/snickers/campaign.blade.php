@@ -578,24 +578,57 @@
             }
         }
 
-        @keyframes pulseGlow {
-            0%, 100% { 
-                box-shadow: 0 0 20px rgba(255, 215, 0, 0.3), 
-                           0 0 40px rgba(255, 215, 0, 0.2), 
-                           0 0 60px rgba(255, 215, 0, 0.1);
+        @keyframes floatBubble {
+            0% { 
+                transform: translateY(100vh) translateX(0px) scale(0);
+                opacity: 0;
+            }
+            10% { 
+                opacity: 0.7;
+                transform: translateY(90vh) translateX(10px) scale(0.8);
             }
             50% { 
-                box-shadow: 0 0 30px rgba(255, 215, 0, 0.5), 
-                           0 0 60px rgba(255, 215, 0, 0.3), 
-                           0 0 90px rgba(255, 215, 0, 0.2);
+                opacity: 1;
+                transform: translateY(50vh) translateX(-20px) scale(1.2);
+            }
+            90% { 
+                opacity: 0.7;
+                transform: translateY(10vh) translateX(15px) scale(0.9);
+            }
+            100% { 
+                transform: translateY(-10vh) translateX(-10px) scale(0);
+                opacity: 0;
             }
         }
 
-        @keyframes sparkle {
-            0%, 100% { opacity: 0; transform: scale(0) rotate(0deg); }
-            25% { opacity: 1; transform: scale(1) rotate(90deg); }
-            50% { opacity: 0.8; transform: scale(1.2) rotate(180deg); }
-            75% { opacity: 1; transform: scale(1) rotate(270deg); }
+        @keyframes floatBalloon {
+            0% { 
+                transform: translateY(100vh) translateX(0px) rotate(0deg) scale(0);
+                opacity: 0;
+            }
+            15% { 
+                opacity: 0.8;
+                transform: translateY(85vh) translateX(-15px) rotate(5deg) scale(0.7);
+            }
+            50% { 
+                opacity: 1;
+                transform: translateY(40vh) translateX(25px) rotate(-3deg) scale(1.1);
+            }
+            85% { 
+                opacity: 0.8;
+                transform: translateY(15vh) translateX(-20px) rotate(2deg) scale(0.8);
+            }
+            100% { 
+                transform: translateY(-10vh) translateX(10px) rotate(-1deg) scale(0);
+                opacity: 0;
+            }
+        }
+
+        @keyframes bubbleWobble {
+            0%, 100% { transform: translateX(0px) scale(1); }
+            25% { transform: translateX(-3px) scale(1.05); }
+            50% { transform: translateX(2px) scale(0.95); }
+            75% { transform: translateX(-1px) scale(1.02); }
         }
 
         .animated-background {
@@ -606,13 +639,19 @@
         .animated-background::before {
             content: '';
             position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255, 215, 0, 0.1) 1px, transparent 1px);
-            background-size: 50px 50px;
-            animation: sparkle 3s linear infinite;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.3) 2px, transparent 2px),
+                radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.2) 1px, transparent 1px),
+                radial-gradient(circle at 40% 40%, rgba(255, 255, 255, 0.4) 1.5px, transparent 1.5px),
+                radial-gradient(circle at 60% 70%, rgba(255, 255, 255, 0.25) 1px, transparent 1px),
+                radial-gradient(circle at 90% 60%, rgba(255, 255, 255, 0.35) 2px, transparent 2px),
+                radial-gradient(circle at 10% 30%, rgba(255, 255, 255, 0.2) 1px, transparent 1px);
+            background-size: 100px 100px, 80px 80px, 120px 120px, 90px 90px, 110px 110px, 70px 70px;
+            animation: floatBubble 8s linear infinite, bubbleWobble 3s ease-in-out infinite;
             pointer-events: none;
         }
 
@@ -623,8 +662,14 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(45deg, transparent 30%, rgba(255, 215, 0, 0.1) 50%, transparent 70%);
-            animation: sparkle 4s linear infinite reverse;
+            background-image: 
+                radial-gradient(ellipse at 30% 20%, rgba(255, 215, 0, 0.3) 3px, transparent 3px),
+                radial-gradient(ellipse at 70% 80%, rgba(255, 165, 0, 0.25) 2px, transparent 2px),
+                radial-gradient(ellipse at 50% 50%, rgba(255, 140, 0, 0.2) 2.5px, transparent 2.5px),
+                radial-gradient(ellipse at 15% 60%, rgba(255, 215, 0, 0.35) 1.5px, transparent 1.5px),
+                radial-gradient(ellipse at 85% 40%, rgba(255, 165, 0, 0.3) 2px, transparent 2px);
+            background-size: 150px 150px, 130px 130px, 180px 180px, 100px 100px, 160px 160px;
+            animation: floatBalloon 12s linear infinite reverse, bubbleWobble 4s ease-in-out infinite reverse;
             pointer-events: none;
         }
 
@@ -948,7 +993,7 @@
             <img src="/uis/05/05_Text.png" alt="Snickers Logo" class="snickers-logo" style="width: 38vh;height: auto;margin-bottom: 5vh;cursor: pointer;transition: none;margin-top: 3vh;">
 
             <div class="loading" id="hungryLoading" style="display: none;">
-                <div class="snickers-animation-container animated-background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; background: #8B4513; border-radius: 20px; overflow: hidden; display: flex; align-items: center; justify-content: center; animation: gradientShift 4s ease-in-out infinite, pulseGlow 3s ease-in-out infinite;">
+                <div class="snickers-animation-container animated-background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; background: #8B4513; border-radius: 20px; overflow: hidden; display: flex; align-items: center; justify-content: center; animation: gradientShift 4s ease-in-out infinite;">
                     <img src="/01/SNICKERS BAR.png" alt="Snickers Bar" class="rotating-snickers" style="width: 200px; height: auto; animation: rotateSnickers 2s linear infinite;">
                     <div class="processing-text" style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); color: #FFD700; font-size: 18px; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.8);">
                         Processing your photos...
@@ -978,7 +1023,7 @@
             <div id="processingStatusOverlay" style="position: absolute; top: 20px; left: 20px; right: 20px; background: rgba(0,0,0,0.7); color: #FFD700; padding: 15px; border-radius: 10px; text-align: center; font-size: 16px; font-weight: bold; z-index: 1000;">
 
                 <div class="loading" id="hungryLoading" style="display: none;">
-                    <div class="snickers-animation-container animated-background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; background: #8B4513; border-radius: 20px; overflow: hidden; display: flex; align-items: center; justify-content: center; animation: gradientShift 4s ease-in-out infinite, pulseGlow 3s ease-in-out infinite;">
+                    <div class="snickers-animation-container animated-background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; background: #8B4513; border-radius: 20px; overflow: hidden; display: flex; align-items: center; justify-content: center; animation: gradientShift 4s ease-in-out infinite;">
                         <img src="/01/SNICKERS BAR.png" alt="Snickers Bar" class="rotating-snickers" style="width: 200px; height: auto; animation: rotateSnickers 2s linear infinite;">
                         <div class="processing-text" style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); color: #FFD700; font-size: 18px; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.8);">
                             Processing your photos...
