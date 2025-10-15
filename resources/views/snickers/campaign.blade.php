@@ -883,7 +883,12 @@
 
         <!-- Step 5: Video -->
         <div class="step" id="step5">
-
+            <div class="snickers-animation-container" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; background: #000; border-radius: 20px; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+                <img src="/01/SNICKERS BAR.png" alt="Snickers Bar" class="rotating-snickers" style="width: 200px; height: auto; animation: rotateSnickers 2s linear infinite;">
+                <div class="processing-text" style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); color: #FFD700; font-size: 18px; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.8);">
+                    Processing your photos...
+                </div>
+            </div>
 
             <div class="video-container">
                 <video id="satisfying-video" autoplay muted loop style="display: none !important;">
@@ -902,7 +907,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
                     <div class="spinner" style="width: 20px; height: 20px; border-width: 2px;"></div>
                 </div>
