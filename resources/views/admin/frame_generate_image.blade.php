@@ -20,12 +20,12 @@
         <div id="exportable-card" style="border: 3px solid #000; display: flex; height: 1000px;">
             <div style="flex: 1;position: relative;">
                 <div id="left-container" style="height: -webkit-fill-available;background: url('{{ Storage::url($image->sad_image) }}') no-repeat;background-size: 100% 100%;background-position: center">
-                    <div id="exportable-image-left" style="background: url('{{url('framebox_left.png')}}');height: 100%;background-position: center;background-repeat: no-repeat;background-size: inherit;"></div>
+                    <div id="exportable-image-left" style="background: url('{{url('framebox_right_done991.png')}}');height: 100%;background-position: center;background-repeat: no-repeat;background-size: inherit;"></div>
                 </div>
             </div>
             <div style="flex: 1; position: relative;">
                 <div id="right-container" style="height: -webkit-fill-available;background: url('{{ Storage::url($image->happy_image) }}') no-repeat;background-size: 100% 100%;background-position: center">
-                    <div id="exportable-image-right" style="background: url('{{url('framebox_right.png')}}');height: 100%;background-position: center;background-repeat: no-repeat;background-size: inherit;"></div>
+                    <div id="exportable-image-right" style="background: url('{{url('framebox_left_done991.png')}}');height: 100%;background-position: center;background-repeat: no-repeat;background-size: inherit;"></div>
                 </div>
             </div>
         </div>

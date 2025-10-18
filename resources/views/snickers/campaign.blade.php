@@ -1080,7 +1080,7 @@
 
         <!-- Step 8: Thank You Screen -->
         <div class="step" id="step8" onclick="restartCampaign()">
-            <img src="/uis/06/06_info_lin.png" alt="Snickers Logo" class="asset-image" style="width: 41vh !important;">
+            <img src="/uis/06/06_info_2.png" alt="Snickers Logo" class="asset-image" style="width: 41vh !important;">
             <img src="/01/SNICKERS LOGO.png" alt="Snickers Logo" class="snickers-logo" style="width: 38vh; height: auto; margin-bottom: 2vh; cursor: pointer; transition: none;">
         </div>
     </div>
