@@ -55,6 +55,15 @@
             </label>
             <div class="help-text">Disable to process with background queue jobs</div>
         </div>
+
+        <div class="form-group">
+            <label class="switch-label">Disable Kiosk API Calls</label>
+            <label class="switch">
+                <input type="checkbox" name="disable_kiosk_api" value="1" {{ $data['disable_kiosk_api'] ? 'checked' : '' }}>
+                <span class="slider round"></span>
+            </label>
+            <div class="help-text">When enabled, snickers page only stores original photos without API processing</div>
+        </div>
     </div>
 
     <div style="margin-top: 20px;">

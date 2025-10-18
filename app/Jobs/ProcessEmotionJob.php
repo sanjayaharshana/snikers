@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use App\Models\GeneratedImage;
 use App\Services\TokenTrackingService;
+use App\Services\ImageComplianceService;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
 
@@ -200,12 +201,22 @@ class ProcessEmotionJob implements ShouldQueue
      */
     private function processWithOriginalAPI($imagePath, $emotion)
     {
+        try {
+            // Preprocess image for better API compliance
+            $complianceService = new ImageComplianceService();
+            $processedImagePath = $complianceService->preprocessImageForAPI($imagePath, $emotion);
+            
+            // Use processed image if available, otherwise use original
+            $finalImagePath = $processedImagePath ? Storage::disk('public')->path($processedImagePath) : $imagePath;
+            
+            Log::info("Using image for API: " . ($processedImagePath ? 'processed' : 'original'));
+            
             // Keep the original implementation as fallback
             $serviceChoice = $emotion === 'sad' ? '15' : '12';
 
             $response = Http::withHeaders([
                 'ailabapi-api-key' => env('AILABTOOLS_API_KEY', 'imff7TwAtdh9xZku1PWRCMjN9CJqLFvr5BevQyKI3ZzEy6DTOrXVI8S4hWgo146U')
-            ])->attach('image_target', file_get_contents($imagePath), basename($imagePath))
+            ])->attach('image_target', file_get_contents($finalImagePath), basename($finalImagePath))
             ->post('https://www.ailabapi.com/api/portrait/effects/emotion-editor', [
                 'service_choice' => $serviceChoice
             ]);
@@ -216,10 +227,67 @@ class ProcessEmotionJob implements ShouldQueue
                     return $data['data']['image'];
                 }
             } else {
-                Log::error('AILabTools API Error: ' . $response->status() . ' - ' . $response->body());
+                $errorData = $response->json();
+                $statusCode = $response->status();
+                
+                // Handle specific error cases
+                if (isset($errorData['error_code']) && $errorData['error_code'] == 422) {
+                    if (isset($errorData['error_code_str']) && $errorData['error_code_str'] == 'FILE_CONTENT_NON_COMPLIANCE') {
+                        Log::warning('AILabTools API: Image content compliance failed - ' . ($errorData['error_msg'] ?? 'Unknown compliance issue'));
+                        Log::warning('Image path: ' . $imagePath . ', Emotion: ' . $emotion);
+                        
+                        // If we used processed image and it still failed, try original
+                        if ($processedImagePath && $finalImagePath !== $imagePath) {
+                            Log::info('Retrying with original image after processed image failed compliance');
+                            return $this->retryWithOriginalImage($imagePath, $emotion);
+                        }
+                        
+                        return null; // Return null to trigger fallback processing
+                    }
+                }
+                
+                Log::error('AILabTools API Error: ' . $statusCode . ' - ' . $response->body());
             }
 
             return null;
+        } catch (\Exception $e) {
+            Log::error('AILabTools API error: ' . $e->getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Retry API call with original image
+     */
+    private function retryWithOriginalImage($imagePath, $emotion)
+    {
+        try {
+            Log::info('Retrying API call with original image');
+            
+            $serviceChoice = $emotion === 'sad' ? '15' : '12';
+            
+            $response = Http::withHeaders([
+                'ailabapi-api-key' => env('AILABTOOLS_API_KEY', 'imff7TwAtdh9xZku1PWRCMjN9CJqLFvr5BevQyKI3ZzEy6DTOrXVI8S4hWgo146U')
+            ])->attach('image_target', file_get_contents($imagePath), basename($imagePath))
+                ->post('https://www.ailabapi.com/api/portrait/effects/emotion-editor', [
+                    'service_choice' => $serviceChoice
+                ]);
+
+            if ($response->successful()) {
+                $data = $response->json();
+                if (isset($data['data']['image'])) {
+                    Log::info('Retry with original image successful');
+                    return $data['data']['image'];
+                }
+            } else {
+                Log::warning('Retry with original image also failed: ' . $response->status() . ' - ' . $response->body());
+            }
+
+            return null;
+        } catch (\Exception $e) {
+            Log::error('Retry with original image failed: ' . $e->getMessage());
+            return null;
+        }
     }
 
     /**

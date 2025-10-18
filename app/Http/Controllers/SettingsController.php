@@ -18,6 +18,7 @@ class SettingsController extends Controller
             'use_ailabtools' => Setting::getBool('use_ailabtools', env('USE_AILABTOOLS_API', true)),
             'use_gemini' => Setting::getBool('use_gemini', env('USE_GOOGLE_GEMINI_API', false)),
             'direct_api' => Setting::getBool('direct_api', env('DIRECT_API', false)),
+            'disable_kiosk_api' => Setting::getBool('disable_kiosk_api', false),
         ];
 
         return view('admin.settings', compact('data'));
@@ -34,12 +35,14 @@ class SettingsController extends Controller
             'use_ailabtools' => 'nullable|boolean',
             'use_gemini' => 'nullable|boolean',
             'direct_api' => 'nullable|boolean',
+            'disable_kiosk_api' => 'nullable|boolean',
         ]);
 
         Setting::setBool('ai_mode', (bool) ($validated['ai_mode'] ?? false));
         Setting::setBool('use_ailabtools', (bool) ($validated['use_ailabtools'] ?? false));
         Setting::setBool('use_gemini', (bool) ($validated['use_gemini'] ?? false));
         Setting::setBool('direct_api', (bool) ($validated['direct_api'] ?? false));
+        Setting::setBool('disable_kiosk_api', (bool) ($validated['disable_kiosk_api'] ?? false));
 
         return back()->with('success', 'Settings updated successfully');
     }

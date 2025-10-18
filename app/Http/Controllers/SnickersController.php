@@ -146,6 +146,19 @@ class SnickersController extends Controller
                 ]),
             ]);
 
+            // Check if kiosk API calls are disabled
+            if (\App\Models\Setting::getBool('disable_kiosk_api', false)) {
+                \Log::info('Kiosk API calls disabled, storing original image only');
+                return response()->json([
+                    'success' => true,
+                    'phone_number' => $request->phone_number,
+                    'original_image_url' => Storage::url($originalPath),
+                    'generated_image_id' => $generatedImage->id,
+                    'job_status' => 'disabled',
+                    'message' => 'Original image stored successfully. API processing disabled.'
+                ]);
+            }
+
             // Check if direct API mode is enabled
             if (\App\Models\Setting::getBool('direct_api', env('DIRECT_API', false))) {
                 \Log::info('Direct API mode enabled, processing sad emotion immediately...');
@@ -228,7 +241,7 @@ class SnickersController extends Controller
 
             // Find the existing generated image record
             $generatedImage = GeneratedImage::where('phone_number', $request->phone_number)
-                ->whereNotNull('sad_image')
+                ->whereNotNull('original_image')
                 ->latest()
                 ->first();
 
@@ -243,6 +256,30 @@ class SnickersController extends Controller
             $secondSelfieFilename = 'second_selfie_' . time() . '_' . Str::random(10) . '.jpg';
             $secondSelfiePath = 'temp/' . $secondSelfieFilename;
             Storage::disk('public')->put($secondSelfiePath, $imageData);
+
+            // Check if kiosk API calls are disabled
+            if (\App\Models\Setting::getBool('disable_kiosk_api', false)) {
+                \Log::info('Kiosk API calls disabled, storing second selfie only');
+                
+                // Update emotion data to reflect disabled status
+                $emotionData = json_decode($generatedImage->emotion_data, true);
+                $emotionData['second_selfie_stored'] = true;
+                $emotionData['second_selfie_path'] = $secondSelfiePath;
+                $emotionData['job_status'] = 'disabled';
+                $emotionData['job_updated_at'] = now()->toISOString();
+                $emotionData['campaign_completed'] = true;
+                $generatedImage->update(['emotion_data' => json_encode($emotionData)]);
+
+                return response()->json([
+                    'success' => true,
+                    'phone_number' => $request->phone_number,
+                    'original_image_url' => Storage::url($secondSelfiePath),
+                    'generated_image_id' => $generatedImage->id,
+                    'job_status' => 'disabled',
+                    'campaign_completed' => true,
+                    'message' => 'Second selfie stored successfully. API processing disabled.'
+                ]);
+            }
 
             // Check if direct API mode is enabled
             if (\App\Models\Setting::getBool('direct_api', env('DIRECT_API', false))) {
@@ -649,6 +686,38 @@ class SnickersController extends Controller
                 'success' => false,
                 'message' => 'Generated image not found'
             ], 404);
+        }
+
+        // Check if kiosk API calls are disabled
+        if (\App\Models\Setting::getBool('disable_kiosk_api', false)) {
+            \Log::info('Kiosk API calls disabled, returning fallback result with original photo');
+            
+            $emotionData = json_decode($generatedImage->emotion_data, true) ?? [];
+            
+            // Simulate API fallback behavior - return original photo as if API failed
+            return response()->json([
+                'success' => true,
+                'generated_image_id' => $generatedImage->id,
+                'phone_number' => $generatedImage->phone_number,
+                'job_status' => 'completed',
+                'job_updated_at' => now()->toISOString(),
+                'original_image_url' => Storage::url($generatedImage->original_image),
+                'sad_image_url' => Storage::url($generatedImage->original_image), // Fallback to original
+                'happy_image_url' => Storage::url($generatedImage->original_image), // Fallback to original
+                'emotion_data' => array_merge($emotionData, [
+                    'job_status' => 'completed',
+                    'job_updated_at' => now()->toISOString(),
+                    'api_fallback' => true,
+                    'fallback_reason' => 'kiosk_api_disabled',
+                    'sad_processed' => true,
+                    'happy_processed' => true,
+                    'campaign_completed' => true
+                ]),
+                'campaign_completed' => true,
+                'message' => 'Processing completed using original photo (API disabled)',
+                'api_fallback' => true,
+                'fallback_reason' => 'kiosk_api_disabled'
+            ]);
         }
 
         $emotionData = json_decode($generatedImage->emotion_data, true) ?? [];
