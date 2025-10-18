@@ -171,6 +171,7 @@ class AdminController extends Controller
             if (env('USE_GOOGLE_GEMINI_API', false)) {
                 $processedImage =  $this->processWithGoogleGemini($fullPath, 'happy',$generatedImage->id, $generatedImage->phone_number);
             }
+            
 
             if ($processedImage) {
                 // Save processed image
@@ -193,6 +194,61 @@ class AdminController extends Controller
 
         return redirect()->route('admin.dashboard')->with('success', 'Happy photo generation has been queued for Image ID '.$image->id);
     }
+    
+    
+    public function generateSad($id)
+    {
+        if (!session('admin_logged_in')) {
+            return redirect()->route('admin.login');
+        }
+
+        $image = GeneratedImage::findOrFail($id);
+
+        // Update emotion_data to reflect queued job status
+        $emotionData = json_decode($image->emotion_data, true) ?? [];
+        $emotionData['job_status'] = 'queued';
+        $emotionData['job_updated_at'] = now()->toISOString();
+        $emotionData['sad_processed'] = $emotionData['sad_processed'] ?? false;
+
+        $image->update(['emotion_data' => json_encode($emotionData)]);
+
+
+        if(\App\Models\Setting::getBool('direct_api', env('DIRECT_API', false))){
+
+            $generatedImage = GeneratedImage::find($id);
+            $fullPath = Storage::disk('public')->path($generatedImage->original_image);
+
+            if (env('USE_AILABTOOLS_API', true)) {
+                $processedImage =  $this->processWithOriginalAPI($fullPath, 'sad',$generatedImage->id, $generatedImage->phone_number);
+            }
+
+            // Option 2: Use Google Gemini Imagen API (alternative)
+            if (env('USE_GOOGLE_GEMINI_API', false)) {
+                $processedImage =  $this->processWithGoogleGemini($fullPath, 'sad',$generatedImage->id, $generatedImage->phone_number);
+            }
+
+            if ($processedImage) {
+                // Save processed image
+                $filename = 'sad' . '_' . time() . '_' . uniqid() . '.jpg';
+                $processedPath = 'generated/' . $filename;
+
+                Storage::disk('public')->put($processedPath, base64_decode($processedImage));
+
+                // Update the database record
+                $this->updateGeneratedImage($generatedImage, $processedPath, 'sad');
+
+            } else {
+                // Use original image as fallback
+                
+               return 'null';
+            }
+        }
+
+        // Dispatch the happy emotion processing job using the original image
+        ProcessEmotionJob::dispatch($image->id, $image->original_image, 'happy', $image->phone_number);
+
+        return redirect()->route('admin.dashboard')->with('success', 'Happy photo generation has been queued for Image ID '.$image->id);
+    }
 
 
 
@@ -202,13 +258,14 @@ class AdminController extends Controller
         try {
             // Keep the original implementation as fallback
             $serviceChoice = $emotion === 'sad' ? '15' : '12';
-
+            
             $response = Http::withHeaders([
                 'ailabapi-api-key' => env('AILABTOOLS_API_KEY', 'imff7TwAtdh9xZku1PWRCMjN9CJqLFvr5BevQyKI3ZzEy6DTOrXVI8S4hWgo146U')
             ])->attach('image_target', file_get_contents($imagePath), basename($imagePath))
                 ->post('https://www.ailabapi.com/api/portrait/effects/emotion-editor', [
                     'service_choice' => $serviceChoice
                 ]);
+                
 
             // Log token usage
             TokenTrackingService::logApiCall([

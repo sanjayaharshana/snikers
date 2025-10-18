@@ -209,25 +209,57 @@ class ImageController extends Controller
     /**
      * Generate sad image for the specified resource.
      */
-    public function generateSad(GeneratedImage $image)
+      public function generateSad($id)
     {
-        if (!$image->original_image || !Storage::disk('public')->exists($image->original_image)) {
-            return back()->with('error', 'Original image not found for processing.');
+        if (!session('admin_logged_in')) {
+            return redirect()->route('admin.login');
         }
 
-        // Update emotion_data to reflect job status
+        $image = GeneratedImage::findOrFail($id);
+
+        // Update emotion_data to reflect queued job status
         $emotionData = json_decode($image->emotion_data, true) ?? [];
-        $emotionData['sad_processed'] = false;
         $emotionData['job_status'] = 'queued';
         $emotionData['job_updated_at'] = now()->toISOString();
-        $image->emotion_data = json_encode($emotionData);
-        $image->sad_image = null;
-        $image->save();
+        $emotionData['happy_processed'] = $emotionData['happy_processed'] ?? false;
 
-        // Dispatch AI processing job for sad emotion
-        ProcessEmotionJob::dispatch($image->id, $image->original_image, 'sad', $image->phone_number);
+        $image->update(['emotion_data' => json_encode($emotionData)]);
 
-        return back()->with('success', 'Sad photo generation job has been queued for ' . $image->phone_number);
+
+        if(\App\Models\Setting::getBool('direct_api', env('DIRECT_API', false))){
+
+            $generatedImage = GeneratedImage::find($id);
+            $fullPath = Storage::disk('public')->path($generatedImage->original_image);
+
+            if (env('USE_AILABTOOLS_API', true)) {
+                $processedImage =  $this->processWithOriginalAPI($fullPath, 'sad',$generatedImage->id, $generatedImage->phone_number);
+            }
+
+            // Option 2: Use Google Gemini Imagen API (alternative)
+            if (env('USE_GOOGLE_GEMINI_API', false)) {
+                $processedImage =  $this->processWithGoogleGemini($fullPath, 'sad',$generatedImage->id, $generatedImage->phone_number);
+            }
+
+            if ($processedImage) {
+                // Save processed image
+                $filename = 'happy' . '_' . time() . '_' . uniqid() . '.jpg';
+                $processedPath = 'generated/' . $filename;
+
+                Storage::disk('public')->put($processedPath, base64_decode($processedImage));
+
+                // Update the database record
+                $this->updateGeneratedImage($generatedImage, $processedPath, 'sad');
+
+            } else {
+                // Use original image as fallback
+               return 'null';
+            }
+        }
+
+        // Dispatch the happy emotion processing job using the original image
+        ProcessEmotionJob::dispatch($image->id, $image->original_image, 'happy', $image->phone_number);
+
+        return redirect()->route('admin.dashboard')->with('success', 'Happy photo generation has been queued for Image ID '.$image->id);
     }
 
     /**
