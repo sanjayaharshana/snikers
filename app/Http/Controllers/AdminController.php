@@ -244,10 +244,10 @@ class AdminController extends Controller
             }
         }
 
-        // Dispatch the happy emotion processing job using the original image
-        ProcessEmotionJob::dispatch($image->id, $image->original_image, 'happy', $image->phone_number);
+        // Dispatch the sad emotion processing job using the original image
+        ProcessEmotionJob::dispatch($image->id, $image->original_image, 'sad', $image->phone_number);
 
-        return redirect()->route('admin.dashboard')->with('success', 'Happy photo generation has been queued for Image ID '.$image->id);
+        return redirect()->route('admin.dashboard')->with('success', 'Sad photo generation has been queued for Image ID '.$image->id);
     }
 
 

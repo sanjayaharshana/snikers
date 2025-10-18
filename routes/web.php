@@ -36,6 +36,7 @@ Route::put('/admin/images/{id}', [AdminController::class, 'update'])->name('admi
 Route::delete('/admin/images/{id}', [AdminController::class, 'destroy'])->name('admin.destroy');
 Route::get('/admin/images/{id}/download/{type}', [AdminController::class, 'download'])->name('admin.download');
 Route::post('/admin/images/{id}/generate-happy', [AdminController::class, 'generateHappy'])->name('admin.generate-happy');
+Route::post('/admin/images/{id}/generate-sad', [AdminController::class, 'generateSad'])->name('admin.generate-sad');
 
 // Admin Settings
 Route::get('/admin/settings', [SettingsController::class, 'index'])->name('admin.settings');
